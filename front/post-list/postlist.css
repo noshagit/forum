@@ -1,0 +1,166 @@
+body {
+    margin: 0;
+    font-family: 'Press Start 2P', cursive;
+    background-color: #66C586;
+    color: #000000;
+  }
+  
+  header {
+    background-color: #22392A;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px;
+  }
+  
+  .logo, .profile-button {
+    background-color: #EBF2FA;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+  }
+  
+  .minecraft-banner {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .minecraft-banner img {
+    height: 120px;
+    max-width: 90%;
+  }
+  
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px;
+  }
+  
+  .search-bar, .dropdown {
+    background-color: #F8E9E7;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    width: 250px;
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+  }
+  
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 10px 30px;
+  }
+  
+  .post-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 95%;
+    max-width: 900px;
+    padding: 10px;
+  }
+  
+  .post {
+    background-color: #F8E9E7;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-family: 'Press Start 2P', cursive;
+    flex: 1;
+    position: relative;
+    max-height: 160px;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 30px 50px;
+  }
+  
+  .post.expanded {
+    max-height: 1000px;
+  }
+  
+  .post h2 {
+    margin: 0;
+    font-size: 14px;
+  }
+  
+  .post p {
+    font-size: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .post .category {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 10px;
+    color: grey;
+  }
+  
+  .show-more {
+    background-color: #75563D;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 8px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .reactions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-left: 15px;
+    margin-top: 10px;
+  }
+  
+  .reaction-box {
+    width: 40px;
+    height: 40px;
+    background-color: #75563D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  
+  .reaction-box img {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s;
+  }
+  
+  .reaction-box img:hover {
+    transform: scale(1.2);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .logo, .profile-button {
+    text-decoration: none;
+    color: black;
+  }
