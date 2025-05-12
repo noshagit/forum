@@ -1,21 +1,10 @@
 package handlers
 
 import (
-	"database/sql"
 	"log"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func getDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "") // TODO : DB file path
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
-func AddPost(id int, author, title, content string) {
+func AddComment(id, postID int, author, content string) {
 	db, err := getDB()
 	if err != nil {
 		log.Println("Database connection error:", err)
@@ -23,20 +12,20 @@ func AddPost(id int, author, title, content string) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("INSERT INTO posts (id, author, title, content) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO comments (id, post_id, author, content) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		log.Println("Database preparation error:", err)
 		return
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(id, author, title, content); err != nil {
+	if _, err = stmt.Exec(id, postID, author, content); err != nil {
 		log.Println("Database insertion error:", err)
 		return
 	}
 }
 
-func DeletePost(id int) {
+func DeleteComment(id int) {
 	db, err := getDB()
 	if err != nil {
 		log.Println("Database connection error:", err)
@@ -44,7 +33,7 @@ func DeletePost(id int) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("DELETE FROM posts WHERE id = ?")
+	stmt, err := db.Prepare("DELETE FROM comments WHERE id = ?")
 	if err != nil {
 		log.Println("Database preparation error:", err)
 		return
@@ -57,7 +46,7 @@ func DeletePost(id int) {
 	}
 }
 
-func ModifyPost(id int, newContent string) {
+func ModifyComment(id int, newContent string) {
 	db, err := getDB()
 	if err != nil {
 		log.Println("Database connection error:", err)
@@ -65,7 +54,7 @@ func ModifyPost(id int, newContent string) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("UPDATE posts SET content = ? WHERE id = ?")
+	stmt, err := db.Prepare("UPDATE comments SET content = ? WHERE id = ?")
 	if err != nil {
 		log.Println("Database preparation error:", err)
 		return
