@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,14 +24,14 @@ func AddPost(id int, author, title, content string) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("INSERT INTO posts (id, author, title, content) VALUES (?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (id, owner_id, title, content, created_at) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Println("Database preparation error:", err)
 		return
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(id, author, title, content); err != nil {
+	if _, err = stmt.Exec(id, author, title, content, time.Now().Format("2006-01-02 15:04")); err != nil {
 		log.Println("Database insertion error:", err)
 		return
 	}
