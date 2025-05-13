@@ -78,3 +78,39 @@ func ModifyPost(id int, newContent string) {
 		return
 	}
 }
+
+type Comment struct {
+	ID        int
+	PostID    int
+	OwnerID   int
+	Content   string
+	CreatedAt string
+}
+
+func GetComments(postID int) []Comment {
+	db, err := getDB()
+	if err != nil {
+		log.Println("Database connection error:", err)
+		return nil
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, post_id, owner_id, content, created_at FROM comments WHERE post_id = ?", postID)
+	if err != nil {
+		log.Println("Database query error:", err)
+		return nil
+	}
+	defer rows.Close()
+
+	var comments []Comment
+	for rows.Next() {
+		var comment Comment
+		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.OwnerID, &comment.Content, &comment.CreatedAt); err != nil {
+			log.Println("Row scan error:", err)
+			continue
+		}
+		comments = append(comments, comment)
+	}
+
+	return comments
+}
