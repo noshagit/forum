@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Pixelify Sans', sans-serif;
+  background-color: #66C586;
+  color: #22392A;
+}
+
+header {
+  background-color: #22392A;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+header button {
+  background-color: #EBF2FA;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.main-post {
+  background-color: #F8E9E7;
+  margin: 40px;
+  padding: 30px;
+  border-radius: 15px;
+}
+
+.title-author {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+.title-author h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.author {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.content {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.reaction-buttons {
+  display: flex;
+  gap: 30px;
+  margin: 20px 40px;
+}
+
+.reaction-box {
+  background-color: #75563D;
+  padding: 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reaction-box img {
+  width: 40px;
+  height: 40px;
+}
+
+.comments {
+  margin: 20px 40px;
+}
+
+.comment-block {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #66C586;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 15px;
+  font-family: 'Pixelify Sans', sans-serif;
+}
+
+.comment-block .avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #CCC;
+}
+
+.comment-block .text {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-block .name {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.comment-block .desc {
+  font-size: 14px;
+}
