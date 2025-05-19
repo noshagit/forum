@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil</title>
+  <link rel="stylesheet" href="profil.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <a href="/front/landing_page/landing_page.html" class="logo">LOGO</a>
+  </header>
+
+  <div class="container">
+    <div class="profile-card">
+      <img src="/front/images/pfp.png" alt="Profile Picture" class="profile-pic" />
+      <div class="info">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="BrrGrrPatapim" class="field" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="bombardino@crocodilo.com" class="field" />
+
+        <a href="/front/password/password.html" class="change-password">Changer le mot de passe</a>
+        <button class="cta">Call To Action</button>
+      </div>
+    </div>
+
+    <div class="delete-section">
+      <div class="delete-text">Supprimer le profil ?</div>
+      <div class="delete-text">↓</div>
+      <a href="/front/landing_page/landing_page.html">
+        <img src="/front/images/tnt.png" alt="Delete" class="delete-icon" />
+      </a>
+    </div>
+  </div>
+
+  <script src="/back/script/profil.js"></script>
+</body>
+</html>
