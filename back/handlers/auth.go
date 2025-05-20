@@ -21,15 +21,15 @@ type User struct {
 
 func LoginHandler(router *mux.Router) {
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../../front/") // TODO : File path
 	}).Methods("GET")
 
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../../front/") // TODO : File path
 	}).Methods("GET")
 
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../script") // TODO : File path
 	}).Methods("GET")
 
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
@@ -50,7 +50,7 @@ func LoginHandler(router *mux.Router) {
 			return
 		}
 
-		db, err := sql.Open("sqlite3", "") // TODO : DB file path
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
 			log.Println("Database connection error:", err)
@@ -98,25 +98,25 @@ func LoginHandler(router *mux.Router) {
 
 func ProfileHandler(router *mux.Router) {
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../../front/") // TODO : File path
 	}).Methods("GET")
 
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../../front/") // TODO : File path
 	}).Methods("GET")
 
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../script") // TODO : File path
 	}).Methods("GET")
 
-	router.HandleFunc("/api/get-profile", func(w http.ResponseWriter, r *http.Request) { 
+	router.HandleFunc("/api/get-profile", func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
 			http.Error(w, "Not authenticated", http.StatusUnauthorized)
 			return
 		}
 
-		db, err := sql.Open("sqlite3", "") // TODO : DB file path
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
 			return
@@ -154,18 +154,18 @@ func ProfileHandler(router *mux.Router) {
 
 func RegisterHandler(router *mux.Router) {
 	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+		http.ServeFile(w, r, "../../front/register/register.html")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+	router.HandleFunc("../../front/register/register.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/register/register.css")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "") // TODO : File path
+	router.HandleFunc("../script/register.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../script/register.js")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
+	router.HandleFunc("/api/register", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
@@ -191,7 +191,7 @@ func RegisterHandler(router *mux.Router) {
 
 		hashedPassword := hashPassword(user.Password)
 
-		db, err := sql.Open("sqlite3", "") // TODO : DB file path
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
 			log.Println("Database connection error:", err)
@@ -222,7 +222,7 @@ func LogoutHandler(router *mux.Router) {
 	router.HandleFunc("/api/logout", func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err == nil {
-			db, err := sql.Open("sqlite3", "") // TODO : DB file path
+			db, err := sql.Open("sqlite3", "../database/bddforum.db")
 			if err == nil {
 				_, err := db.Exec("DELETE FROM sessions WHERE token = ?", cookie.Value)
 				if err != nil {

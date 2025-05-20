@@ -21,6 +21,15 @@ func landingPageHandler(router *mux.Router) {
 	router.HandleFunc("/index.css", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/index.css")
 	}).Methods("GET")
+
+	router.HandleFunc("/front/images/bread.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/bread.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/tofu.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/tofu.png")
+	}).Methods("GET")
+
 }
 
 func main() {
@@ -28,6 +37,7 @@ func main() {
 	router := mux.NewRouter()
 
 	landingPageHandler(router)
+	handlers.ListPostHandler(router)
 
 	handlers.RegisterHandler(router)
 	handlers.LoginHandler(router)
