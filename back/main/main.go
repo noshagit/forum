@@ -15,7 +15,7 @@ func landingPageHandler(router *mux.Router) {
 	}).Methods("GET")
 
 	router.HandleFunc("/index.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../script/index.js")
+		http.ServeFile(w, r, "../../front/index.js")
 	}).Methods("GET")
 
 	router.HandleFunc("/index.css", func(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil</title>
+  <link rel="stylesheet" href="profil.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">LOGO</a>
+    <button class="auth-button" onclick="logout()">Se déconnecter</button>
+  </header>
+
+  <div class="container">
+    <div class="profile-card">
+      <img src="/front/images/pfp.png" alt="Profile Picture" class="profile-pic" />
+      <div class="info">
+        <label for="username">Username</label>
+        <input type="text" id="username" class="field" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" class="field" />
+
+        <a href="/front/password/password.html" class="change-password">Changer le mot de passe</a>
+        <button class="cta">Modifier le profil</button>
+      </div>
+    </div>
+
+  <div class="delete-section">
+    <div class="delete-text">Supprimer le profil ?</div>
+    <div class="delete-text">↓</div>
+    <img src="/front/images/tnt.png" alt="Delete" class="delete-icon" style="cursor:pointer" onclick="deleteProfile()" />
+  </div>
+
+  </div>
+
+  <script src="profil.js"></script>
+</body>
+</html>

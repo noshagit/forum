@@ -9,21 +9,26 @@
 </head>
 <body>
   <header>
-    <a href="/front/landing_page/landing_page.html" class="logo">Logo</a>
+    <a href="/" class="logo">Logo</a>
   </header>
 
   <main>
     <div class="login-container">
-      <div class="login-box">
-        <input type="email" placeholder="Email">
-        <input type="password" placeholder="Password">
-        <button class="cta">Call To Action</button>
-      </div>
+      <form class="login-box" id="login-form">
+        <input type="email" id="email" placeholder="Email" autocomplete="new-email" required>
+        <input type="password" id="password" placeholder="Password" autocomplete="new-password" required>
+        <button type="submit" class="cta">Connexion</button>
+      </form>
       <div class="image-container">
         <img src="/front/images/login.png" alt="Minecraft Login">
       </div>
     </div>
+
+    <div class="image-container"></div>
+        <img src="/front/images/login.png" alt="Minecraft Login">
+      </div>
+    </div>
   </main>
-  <script src="/back/script/login.js"></script>
+  <script src="login.js"></script>
 </body>
 </html>

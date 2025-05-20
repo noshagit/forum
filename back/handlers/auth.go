@@ -20,19 +20,23 @@ type User struct {
 }
 
 func LoginHandler(router *mux.Router) {
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../../front/") // TODO : File path
+	router.HandleFunc("/front/login/login.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/login/login.html")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../../front/") // TODO : File path
+	router.HandleFunc("/front/login/login.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/login/login.css")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../script") // TODO : File path
+	router.HandleFunc("/front/login/login.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/login/login.js")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
+	router.HandleFunc("/front/images/login.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/login.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/login/login.html", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
@@ -97,19 +101,31 @@ func LoginHandler(router *mux.Router) {
 }
 
 func ProfileHandler(router *mux.Router) {
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../../front/") // TODO : File path
+	router.HandleFunc("/front/profil/profil.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/profil/profil.html")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../../front/") // TODO : File path
+	router.HandleFunc("/front/profil/profil.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/profil/profil.css")
 	}).Methods("GET")
 
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
-		http.ServeFile(w, r, "../script") // TODO : File path
+	router.HandleFunc("/front/profil/profil.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/profil/profil.js")
 	}).Methods("GET")
 
-	router.HandleFunc("/api/get-profile", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/front/images/pfp.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/pfp.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/tnt.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/tnt.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/background.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/background.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/get-profile", func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
 			http.Error(w, "Not authenticated", http.StatusUnauthorized)
@@ -132,40 +148,172 @@ func ProfileHandler(router *mux.Router) {
 		}
 
 		var profile struct {
-			Pseudo string `json:"pseudo"`
+			Pseudo string `json:"username"`
 			Email  string `json:"email"`
 		}
 
-		row = db.QueryRow("SELECT pseudo, email FROM users WHERE email = ?", email)
+		row = db.QueryRow("SELECT username, email FROM users WHERE email = ?", email)
 		err = row.Scan(&profile.Pseudo, &profile.Email)
 		if err != nil {
 			http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
 			return
 		}
 
+		log.Println("Email from session:", email)
+		log.Println("Username from session:", profile.Pseudo)
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
 			"profile": profile,
 		})
+		log.Println("POST reçu")
 	}).Methods("GET")
+
+	router.HandleFunc("/update-profile", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, "Not authenticated", http.StatusUnauthorized)
+			return
+		}
+
+		var updateData struct {
+			Username string `json:"username"`
+			Email    string `json:"email"`
+		}
+
+		err = json.NewDecoder(r.Body).Decode(&updateData)
+		if err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if updateData.Username == "" || updateData.Email == "" {
+			http.Error(w, "Username and Email cannot be empty", http.StatusBadRequest)
+			return
+		}
+
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
+		if err != nil {
+			http.Error(w, "Database connection error", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var currentEmail string
+		err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", cookie.Value).Scan(&currentEmail)
+		if err != nil {
+			http.Error(w, "Invalid session", http.StatusUnauthorized)
+			return
+		}
+
+		_, err = db.Exec("UPDATE users SET username = ?, email = ? WHERE email = ?", updateData.Username, updateData.Email, currentEmail)
+		if err != nil {
+			http.Error(w, "Error updating profile", http.StatusInternalServerError)
+			return
+		}
+
+		if updateData.Email != currentEmail {
+			_, err = db.Exec("UPDATE sessions SET email = ? WHERE token = ?", updateData.Email, cookie.Value)
+			if err != nil {
+				http.Error(w, "Error updating session email", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Profile updated successfully"))
+	}).Methods("POST")
+
+	router.HandleFunc("/delete-profile", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, "Not authenticated", http.StatusUnauthorized)
+			return
+		}
+
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
+		if err != nil {
+			http.Error(w, "Database connection error", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var email string
+		err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", cookie.Value).Scan(&email)
+		if err != nil {
+			http.Error(w, "Invalid session", http.StatusUnauthorized)
+			return
+		}
+
+		tx, err := db.Begin()
+		if err != nil {
+			http.Error(w, "Database transaction error", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = tx.Exec("DELETE FROM users WHERE email = ?", email)
+		if err != nil {
+			tx.Rollback()
+			http.Error(w, "Error deleting user", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = tx.Exec("DELETE FROM sessions WHERE token = ?", cookie.Value)
+		if err != nil {
+			tx.Rollback()
+			http.Error(w, "Error deleting session", http.StatusInternalServerError)
+			return
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			http.Error(w, "Transaction commit error", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_token",
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   -1,
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Account deleted successfully"))
+	}).Methods("POST")
 
 }
 
 func RegisterHandler(router *mux.Router) {
-	router.HandleFunc("", func(w http.ResponseWriter, r *http.Request) { // TODO : Route path
+	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/register/register.html")
 	}).Methods("GET")
 
-	router.HandleFunc("../../front/register/register.css", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/front/register/register.css", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/register/register.css")
 	}).Methods("GET")
 
-	router.HandleFunc("../script/register.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../script/register.js")
+	router.HandleFunc("/front/register/register.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/register/register.js")
 	}).Methods("GET")
 
-	router.HandleFunc("/api/register", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/front/images/register.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/register.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 			return
@@ -181,6 +329,7 @@ func RegisterHandler(router *mux.Router) {
 
 		if user.Pseudo == "" || user.Email == "" || user.Password == "" || user.ConfirmPassword == "" {
 			http.Error(w, "All fields are required", http.StatusBadRequest)
+			log.Printf("Pseudo: %s, Email: %s, Password: %s, ConfirmPassword: %s", user.Pseudo, user.Email, user.Password, user.ConfirmPassword)
 			return
 		}
 
@@ -199,7 +348,7 @@ func RegisterHandler(router *mux.Router) {
 		}
 		defer db.Close()
 
-		stmt, err := db.Prepare("INSERT INTO users (pseudo, email, password) VALUES (?, ?, ?)")
+		stmt, err := db.Prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
 		if err != nil {
 			log.Println("Database preparation error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
@@ -215,11 +364,12 @@ func RegisterHandler(router *mux.Router) {
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Registration successful"))
+		log.Println("POST reçu")
 	}).Methods("POST")
 }
 
 func LogoutHandler(router *mux.Router) {
-	router.HandleFunc("/api/logout", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err == nil {
 			db, err := sql.Open("sqlite3", "../database/bddforum.db")
