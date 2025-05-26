@@ -3,8 +3,13 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -121,6 +126,8 @@ func RegisterHandler(router *mux.Router) {
 		http.ServeFile(w, r, "../../front/images/register.png")
 	}).Methods("GET")
 
+	router.PathPrefix("/front/pp/").Handler(http.StripPrefix("/front/pp/", http.FileServer(http.Dir("../../front/pp/"))))
+
 	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -156,7 +163,7 @@ func RegisterHandler(router *mux.Router) {
 		}
 		defer db.Close()
 
-		stmt, err := db.Prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+		stmt, err := db.Prepare("INSERT INTO users (username, email, password, profile_picture) VALUES (?, ?, ?, ?)")
 		if err != nil {
 			log.Println("Database preparation error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
@@ -164,7 +171,8 @@ func RegisterHandler(router *mux.Router) {
 		}
 		defer stmt.Close()
 
-		if _, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword); err != nil {
+		defaultProfilePicture := "../pp/default.png"
+		if _, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword, defaultProfilePicture); err != nil {
 			log.Println("Database insertion error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
@@ -240,15 +248,21 @@ func ProfileHandler(router *mux.Router) {
 		}
 
 		var profile struct {
-			Pseudo string `json:"username"`
-			Email  string `json:"email"`
-			ID     int    `json:"id"`
+			Pseudo  string `json:"username"`
+			Email   string `json:"email"`
+			ID      int    `json:"id"`
+			Picture string `json:"profile_picture"`
 		}
 
-		row = db.QueryRow("SELECT id, username, email FROM users WHERE email = ?", email)
-		err = row.Scan(&profile.ID, &profile.Pseudo, &profile.Email)
+		row = db.QueryRow("SELECT id, username, email, profile_picture FROM users WHERE email = ?", email)
+		err = row.Scan(&profile.ID, &profile.Pseudo, &profile.Email, &profile.Picture)
 		if err != nil {
-			http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
+			if err == sql.ErrNoRows {
+				http.Error(w, "No profile found for user", http.StatusNotFound)
+			} else {
+				log.Println("DB scan error:", err)
+				http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
+			}
 			return
 		}
 
@@ -275,18 +289,16 @@ func ProfileHandler(router *mux.Router) {
 			return
 		}
 
-		var updateData struct {
-			Username string `json:"username"`
-			Email    string `json:"email"`
-		}
-
-		err = json.NewDecoder(r.Body).Decode(&updateData)
+		err = r.ParseMultipartForm(10 << 20)
 		if err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			http.Error(w, "Error parsing form", http.StatusBadRequest)
 			return
 		}
 
-		if updateData.Username == "" || updateData.Email == "" {
+		username := r.FormValue("username")
+		email := r.FormValue("email")
+
+		if username == "" || email == "" {
 			http.Error(w, "Username and Email cannot be empty", http.StatusBadRequest)
 			return
 		}
@@ -305,14 +317,42 @@ func ProfileHandler(router *mux.Router) {
 			return
 		}
 
-		_, err = db.Exec("UPDATE users SET username = ?, email = ? WHERE email = ?", updateData.Username, updateData.Email, currentEmail)
+		file, handler, err := r.FormFile("profile_picture")
+		var filename string
+		if err == nil {
+			defer file.Close()
+
+			ext := filepath.Ext(handler.Filename)
+			filename = fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+			filepath := "../../front/pp/" + filename
+
+			dst, err := os.Create(filepath)
+			if err != nil {
+				http.Error(w, "Error saving file", http.StatusInternalServerError)
+				return
+			}
+			defer dst.Close()
+			_, err = io.Copy(dst, file)
+			if err != nil {
+				http.Error(w, "Error saving file", http.StatusInternalServerError)
+				return
+			}
+
+			_, err = db.Exec("UPDATE users SET profile_picture = ? WHERE email = ?", "/front/pp/"+filename, currentEmail)
+			if err != nil {
+				http.Error(w, "Error updating profile picture", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		_, err = db.Exec("UPDATE users SET username = ?, email = ? WHERE email = ?", username, email, currentEmail)
 		if err != nil {
 			http.Error(w, "Error updating profile", http.StatusInternalServerError)
 			return
 		}
 
-		if updateData.Email != currentEmail {
-			_, err = db.Exec("UPDATE sessions SET email = ? WHERE token = ?", updateData.Email, cookie.Value)
+		if email != currentEmail {
+			_, err = db.Exec("UPDATE sessions SET email = ? WHERE token = ?", email, cookie.Value)
 			if err != nil {
 				http.Error(w, "Error updating session email", http.StatusInternalServerError)
 				return
