@@ -17,7 +17,7 @@
     <section class="main-post" id="dynamic-post"></section>
 
     <section class="reaction-buttons">
-      <div class="reaction-box"><img src="/front/images/like.png" alt="Like"></div>
+      <div class="reaction-box like-btn" id="${post.ID}"><img src="/front/images/like.png" alt="Like"></div>
       <div class="reaction-box"><img src="/front/images/comment.png" alt="Comments"></div>
       <div class="reaction-box"><img src="/front/images/share.png" alt="Share"></div>
     </section>
@@ -25,6 +25,6 @@
     <section id="comments-container" class="comments"></section>
   </main>
 
-  <script src="comments.js"></script>
+  <script type="module" src="comments.js"></script>
 </body>
 </html>

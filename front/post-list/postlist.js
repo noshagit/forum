@@ -96,7 +96,9 @@ function renderPosts(posts) {
 
 
     const likeBtn = reactions.querySelector('.like-btn');
-    let isLiked = false;
+    let isLiked = false; isLiked = likeStatus(post.ID);
+    if (isLiked)
+      likeBtn.classList.add('liked');
 
     likeBtn.addEventListener('click', async () => {
       if (isLiked) {

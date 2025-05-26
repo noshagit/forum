@@ -1,3 +1,5 @@
+import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
+
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
 
@@ -26,9 +28,26 @@ function renderPostDetail(post) {
   <div class="category">${post.Themes}</div>
   <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
   <div class="likes">Likes : ${post.Likes}</div>
-`;
+  `;
 
+  const likeBtn = document.querySelector('.like-btn');
+  let isLiked = false;
+  isLiked = likeStatus(post.ID);
+  if (isLiked)
+    likeBtn.classList.add('liked');
 
+  likeBtn.addEventListener('click', async () => {
+    if (isLiked) {
+      await unlike(post.ID);
+      isLiked = false;
+      likeBtn.classList.remove('liked');
+    } else {
+      await like(post.ID);
+      isLiked = true;
+      likeBtn.classList.add('liked');
+    }
+    updateLikeCount(post.ID);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -52,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const post = await res.json();
 
+    postContainer.innerHTML = "";
     postContainer.innerHTML = `
       <div class="title-author">
         <h1>${post.Title}</h1>
@@ -62,8 +82,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       </p>
       <div class="category">${post.Themes}</div>
       <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
-      <div class="likes">Likes : ${post.Likes}</div>
+      <div class="likes" >
+        Likes : 
+        <span id="like-count-${post.ID}">${post.Likes}</span>
+      </div>
     `;
+    console.log("Post chargé avec succès :", post);
+    updateLikeCount(post.ID);
   } catch (err) {
     console.error("Erreur:", err);
     postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";

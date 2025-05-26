@@ -1,5 +1,4 @@
-export { updateLikeCount, like, unlike };
-
+export { updateLikeCount, like, unlike, likeStatus };
 
 function getCookie(name) {
     let value = "; " + document.cookie;
@@ -43,6 +42,29 @@ async function updateLikeCount(postId) {
         document.getElementById(`like-count-${postId}`).textContent = data.likes;
     } catch (err) {
         console.error('Failed to fetch like count:', err);
+    }
+}
+
+async function likeStatus(postId) {
+    const userId = await getUserId();
+    if (!userId) {
+        console.error('User not authenticated');
+        return;
+    }
+    try {
+        const res = await fetch(`http://localhost:8080/posts/is_liked`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: userId, postId: postId }),
+            credentials: 'include'
+        });
+        const data = await res.json();
+        return data.liked;
+    } catch (err) {
+        console.error('Failed to check like status:', err);
+        return false;
     }
 }
 

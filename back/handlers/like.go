@@ -17,6 +17,7 @@ func LikesHandler(router *mux.Router) {
 	router.HandleFunc("/posts/like", LikePostHandler).Methods("POST")
 	router.HandleFunc("/posts/unlike", UnlikePostHandler).Methods("POST")
 	router.HandleFunc("/posts/{post_id}/like_count", GetPostLikes).Methods("GET")
+	router.HandleFunc("/posts/is_liked", IsPostLiked).Methods("POST")
 
 	router.HandleFunc("/comments/like", LikeCommentHandler).Methods("POST")
 	router.HandleFunc("/comments/unlike", UnlikeCommentHandler).Methods("POST")
@@ -131,6 +132,37 @@ func GetPostLikes(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]int{"likes": count})
+}
+
+func IsPostLiked(w http.ResponseWriter, r *http.Request) {
+	var requestBody struct {
+		UserID int `json:"userId"`
+		PostID int `json:"postId"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&requestBody); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	userID, postID := requestBody.UserID, requestBody.PostID
+
+	db, err := getDB()
+	if err != nil {
+		log.Println("Database connection error:", err)
+		return
+	}
+	defer db.Close()
+
+	var isLiked bool
+	err = db.QueryRow(`SELECT EXISTS(SELECT 1 FROM post_likes WHERE post_id = ? AND owner_id = ?)`, postID, userID).Scan(&isLiked)
+	if err != nil {
+		log.Println("Database query error:", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"isLiked": isLiked})
 }
 
 func LikeCommentHandler(w http.ResponseWriter, r *http.Request) {
