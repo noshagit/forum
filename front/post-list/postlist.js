@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderPosts(posts) {
   const postsContainer = document.getElementById("posts-container");
-  postsContainer.innerHTML = ""; // Nettoie avant de réinjecter
+  postsContainer.innerHTML = "";
 
   posts.forEach(post => {
     const wrapper = document.createElement("div");
@@ -82,7 +82,6 @@ function renderPosts(posts) {
         <img src="/front/images/like.png" alt="like">
         <span class="like-count" id="like-count-${post.ID}">${post.Likes}</span>
       </div>
-      <div class="reaction-box"><img src="/front/images/share.png" alt="share"></div>
     `;
 
     wrapper.appendChild(postEl);
@@ -154,3 +153,61 @@ function applyFiltersAndSort() {
 
   renderPosts(filtered);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("post-modal");
+  const openBtn = document.getElementById("create-post-button");
+  const closeBtn = modal.querySelector(".close-button");
+  const form = document.getElementById("create-post-form");
+
+  openBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    try {
+      const postData = {
+        title: formData.get("title"),
+        content: formData.get("content"),
+        themes: formData.get("themes")
+      };
+
+      console.log(postData);
+
+      const response = await fetch("/api/add-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
+        credentials: "include",
+      });
+
+
+      if (response.ok) {
+        alert("Post créé !");
+        form.reset();
+        modal.classList.add("hidden");
+
+        await fetchPosts();
+        applyFiltersAndSort();
+
+      } else {
+        alert("Erreur lors de la création du post.");
+      }
+
+    } catch (err) {
+      console.error("Erreur:", err);
+    }
+  });
+});
+

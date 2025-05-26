@@ -175,3 +175,84 @@ body {
     text-decoration: none;
     color: black;
   }
+
+#create-post-button,
+#create-post-button:focus {
+  background-color: #EBF2FA;
+  color: #000000;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(34, 57, 42, 0.8); /* Dark overlay with theme tone */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: #F8E9E7;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+  font-family: 'Press Start 2P', cursive;
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.modal-content input[type="text"],
+.modal-content textarea {
+  width: 100%;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  resize: vertical;
+}
+
+.modal-content button[type="submit"] {
+  background-color: #75563D;
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}

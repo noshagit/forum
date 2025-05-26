@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -50,6 +49,8 @@ func ListPostHandler(router *mux.Router) {
 			http.Error(w, "Erreur lors de l'encodage JSON", http.StatusInternalServerError)
 		}
 	}).Methods("GET")
+
+	router.HandleFunc("/api/add-post", AddPostHandler).Methods("POST")
 }
 
 type Post struct {
@@ -60,6 +61,7 @@ type Post struct {
 	Likes     int
 	Themes    string
 	CreatedAt string
+	Author    string
 }
 
 func GetPosts() []Post {
@@ -90,7 +92,7 @@ func GetPosts() []Post {
 	return posts
 }
 
-func AddPost(id int, author, title, content string) {
+func AddPost(author int, title, content, themes string) {
 	db, err := getDB()
 	if err != nil {
 		log.Println("Database connection error:", err)
@@ -98,17 +100,67 @@ func AddPost(id int, author, title, content string) {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("INSERT INTO posts (id, owner_id, title, content, created_at) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO posts (owner_id, title, content, themes) VALUES (?, ?, ?, ?)")
 	if err != nil {
 		log.Println("Database preparation error:", err)
 		return
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(id, author, title, content, time.Now().Format("2006-01-02 15:04")); err != nil {
+	if _, err = stmt.Exec(author, title, content, themes); err != nil {
 		log.Println("Database insertion error:", err)
 		return
 	}
+}
+
+func AddPostHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Non connecté", http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := cookie.Value
+	log.Println("Session token:", sessionToken)
+
+	db, err := getDB()
+	if err != nil {
+		http.Error(w, "Erreur DB", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var email string
+	err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", sessionToken).Scan(&email)
+	if err != nil {
+		http.Error(w, "Session invalide", http.StatusUnauthorized)
+		return
+	}
+
+	var authorID int
+	err = db.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&authorID)
+	if err != nil {
+		http.Error(w, "Utilisateur introuvable", http.StatusInternalServerError)
+		return
+	}
+
+	var req struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Themes  string `json:"themes"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "JSON invalide", http.StatusBadRequest)
+		return
+	}
+
+	AddPost(authorID, req.Title, req.Content, req.Themes)
+	w.WriteHeader(http.StatusOK)
 }
 
 func DeletePost(id int) {
@@ -157,6 +209,7 @@ type Comment struct {
 	ID        int
 	PostID    int
 	OwnerID   int
+	Author    string
 	Content   string
 	CreatedAt string
 }
@@ -169,7 +222,8 @@ func GetComments(postID int) []Comment {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, post_id, owner_id, content, created_at FROM comments WHERE post_id = ?", postID)
+	query := ` SELECT c.id, c.post_id, c.owner_id, u.username, c.content, c.created_at FROM comments c LEFT JOIN users u ON c.owner_id = u.id WHERE c.post_id = ? `
+	rows, err := db.Query(query, postID)
 	if err != nil {
 		log.Println("Database query error:", err)
 		return nil
@@ -179,7 +233,8 @@ func GetComments(postID int) []Comment {
 	var comments []Comment
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.OwnerID, &comment.Content, &comment.CreatedAt); err != nil {
+		err := rows.Scan(&comment.ID, &comment.PostID, &comment.OwnerID, &comment.Author, &comment.Content, &comment.CreatedAt)
+		if err != nil {
 			log.Println("Row scan error:", err)
 			continue
 		}
@@ -219,11 +274,13 @@ func CommentsHandler(router *mux.Router) {
 		}
 		defer db.Close()
 
-		query := "SELECT id, title, content, themes, likes, created_at FROM posts WHERE id = ?"
+		query := ` SELECT p.id, p.title, p.content, p.themes, p.likes, p.created_at, u.username FROM posts p LEFT JOIN users u ON p.owner_id = u.id WHERE p.id = ?`
+
 		row := db.QueryRow(query, id)
 
 		var post Post
-		err = row.Scan(&post.ID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt)
+		err = row.Scan(&post.ID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt, &post.Author)
+
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "Post non trouvé", http.StatusNotFound)

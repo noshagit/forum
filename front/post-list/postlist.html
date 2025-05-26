@@ -45,6 +45,36 @@
       </select>
     </div>
 
+    <button id="create-post-button">Créer un post</button>
+
+    <div id="post-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Créer un post</h2>
+        <form id="create-post-form">
+          <input type="text" name="title" placeholder="Titre" required /><br />
+
+          <textarea name="content" placeholder="Contenu" required></textarea
+          ><br />
+
+          <select name="themes" required>
+            <option value="">Choisir une catégorie</option>
+            <option value="Mobs">Mobs</option>
+            <option value="Redstone">Redstone</option>
+            <option value="Créatif">Créatif</option>
+            <option value="Survie">Survie</option>
+            <option value="Hardcord">Hardcord</option>
+            <option value="Nether">Nether</option>
+            <option value="End">End</option>
+            <option value="Villageois">Villageois</option>
+            <option value="Mods">Mods</option></select
+          ><br />
+
+          <button type="submit">Publier</button>
+        </form>
+      </div>
+    </div>
+
     <main id="posts-container"></main>
 
     <script type="module" src="postlist.js"></script>
