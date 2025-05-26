@@ -56,6 +56,16 @@ body {
     gap: 20px;
     padding: 0 10px 30px;
   }
+
+    .auth-buttons button {
+    background-color: #ffffff;
+    border: none;
+    margin-left: 10px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+  }
   
   .post-container {
     display: flex;
@@ -127,6 +137,7 @@ body {
     gap: 12px;
     margin-left: 15px;
     margin-top: 10px;
+    cursor: pointer;
   }
   
   .reaction-box {

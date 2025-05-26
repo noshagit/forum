@@ -37,13 +37,14 @@ func main() {
 	router := mux.NewRouter()
 
 	landingPageHandler(router)
+
 	handlers.ListPostHandler(router)
+	handlers.ChangePasswordHandlers(router)
 
 	handlers.RegisterHandler(router)
 	handlers.LoginHandler(router)
 
 	handlers.ProfileHandler(router)
-	handlers.LogoutHandler(router)
 
 	fmt.Println("Server is launch on port 8080 : http://localhost:8080")
 	http.ListenAndServe(":8080", router)

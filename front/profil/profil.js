@@ -83,6 +83,11 @@ function updateProfile() {
         return;
     }
 
+    if (!email.includes("@")) {
+        alert("Veuillez entrer une adresse e-mail valide.");
+        return;
+    }
+
     fetch("/update-profile", {
         method: "POST",
         credentials: "include",

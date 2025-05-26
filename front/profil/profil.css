@@ -43,6 +43,19 @@ header {
   font-size: 10px;
 }
 
+#leave{
+  cursor: pointer;
+  margin-left: 15px;
+  background: #EBF2FA;
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-weight: bold;
+  color: #000000;
+  text-decoration: none;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+}
+
 .container {
   display: flex;
   flex-direction: column;

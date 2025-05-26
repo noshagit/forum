@@ -19,6 +19,10 @@ type User struct {
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
+type ChangePasswordRequest struct {
+	Password string `json:"password"`
+}
+
 func LoginHandler(router *mux.Router) {
 	router.HandleFunc("/front/login/login.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/login/login.html")
@@ -97,6 +101,94 @@ func LoginHandler(router *mux.Router) {
 		} else {
 			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		}
+	}).Methods("POST")
+}
+
+func RegisterHandler(router *mux.Router) {
+	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/register/register.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/register/register.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/register/register.css")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/register/register.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/register/register.js")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/register.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/register.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var user User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			http.Error(w, "JSON decoding error", http.StatusBadRequest)
+			log.Println("JSON decoding error:", err)
+			return
+		}
+
+		if user.Pseudo == "" || user.Email == "" || user.Password == "" || user.ConfirmPassword == "" {
+			http.Error(w, "All fields are required", http.StatusBadRequest)
+			log.Printf("Pseudo: %s, Email: %s, Password: %s, ConfirmPassword: %s", user.Pseudo, user.Email, user.Password, user.ConfirmPassword)
+			return
+		}
+
+		if user.Password != user.ConfirmPassword {
+			http.Error(w, "Passwords do not match", http.StatusBadRequest)
+			return
+		}
+
+		hashedPassword := hashPassword(user.Password)
+
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
+		if err != nil {
+			http.Error(w, "Database connection error", http.StatusInternalServerError)
+			log.Println("Database connection error:", err)
+			return
+		}
+		defer db.Close()
+
+		stmt, err := db.Prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+		if err != nil {
+			log.Println("Database preparation error:", err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+		defer stmt.Close()
+
+		if _, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword); err != nil {
+			log.Println("Database insertion error:", err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		sessionToken := uuid.New().String()
+
+		_, err = db.Exec("INSERT INTO sessions (token, email) VALUES (?, ?)", sessionToken, user.Email)
+		if err != nil {
+			log.Println("Session insertion error:", err)
+			http.Error(w, "Error creating session", http.StatusInternalServerError)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:   "session_token",
+			Value:  sessionToken,
+			Path:   "/",
+			MaxAge: 86400,
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Registration successful"))
+		log.Println("POST reçu")
 	}).Methods("POST")
 }
 
@@ -294,81 +386,6 @@ func ProfileHandler(router *mux.Router) {
 		w.Write([]byte("Account deleted successfully"))
 	}).Methods("POST")
 
-}
-
-func RegisterHandler(router *mux.Router) {
-	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../../front/register/register.html")
-	}).Methods("GET")
-
-	router.HandleFunc("/front/register/register.css", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../../front/register/register.css")
-	}).Methods("GET")
-
-	router.HandleFunc("/front/register/register.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../../front/register/register.js")
-	}).Methods("GET")
-
-	router.HandleFunc("/front/images/register.png", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../../front/images/register.png")
-	}).Methods("GET")
-
-	router.HandleFunc("/front/register/register.html", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-			return
-		}
-
-		var user User
-		err := json.NewDecoder(r.Body).Decode(&user)
-		if err != nil {
-			http.Error(w, "JSON decoding error", http.StatusBadRequest)
-			log.Println("JSON decoding error:", err)
-			return
-		}
-
-		if user.Pseudo == "" || user.Email == "" || user.Password == "" || user.ConfirmPassword == "" {
-			http.Error(w, "All fields are required", http.StatusBadRequest)
-			log.Printf("Pseudo: %s, Email: %s, Password: %s, ConfirmPassword: %s", user.Pseudo, user.Email, user.Password, user.ConfirmPassword)
-			return
-		}
-
-		if user.Password != user.ConfirmPassword {
-			http.Error(w, "Passwords do not match", http.StatusBadRequest)
-			return
-		}
-
-		hashedPassword := hashPassword(user.Password)
-
-		db, err := sql.Open("sqlite3", "../database/bddforum.db")
-		if err != nil {
-			http.Error(w, "Database connection error", http.StatusInternalServerError)
-			log.Println("Database connection error:", err)
-			return
-		}
-		defer db.Close()
-
-		stmt, err := db.Prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
-		if err != nil {
-			log.Println("Database preparation error:", err)
-			http.Error(w, "Server error", http.StatusInternalServerError)
-			return
-		}
-		defer stmt.Close()
-
-		if _, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword); err != nil {
-			log.Println("Database insertion error:", err)
-			http.Error(w, "Server error", http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Registration successful"))
-		log.Println("POST reçu")
-	}).Methods("POST")
-}
-
-func LogoutHandler(router *mux.Router) {
 	router.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err == nil {
@@ -391,8 +408,67 @@ func LogoutHandler(router *mux.Router) {
 			MaxAge:   -1,
 		})
 
-		http.Redirect(w, r, "/main-menu/menu.html", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}).Methods("POST")
+
+}
+
+func ChangePasswordHandlers(router *mux.Router) {
+	router.HandleFunc("/front/password/password.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/password/password.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/password/password.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/password/password.css")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/password/password.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/password/password.js")
+	}).Methods("GET")
+
+	router.HandleFunc("/api/change-password", ChangePasswordAPIHandler("bddforum.db")).Methods("POST")
+}
+
+func ChangePasswordAPIHandler(dbPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req ChangePasswordRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil || req.Password == "" {
+			http.Error(w, `{"error": "Mot de passe invalide"}`, http.StatusBadRequest)
+			return
+		}
+
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, `{"error": "Utilisateur non authentifié"}`, http.StatusUnauthorized)
+			return
+		}
+
+		db, err := sql.Open("sqlite3", "../database/"+dbPath)
+		if err != nil {
+			http.Error(w, `{"error": "Erreur de connexion à la base de données"}`, http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var email string
+		err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", cookie.Value).Scan(&email)
+		if err != nil {
+			http.Error(w, `{"error": "Session invalide"}`, http.StatusUnauthorized)
+			return
+		}
+
+		hashedPassword := hashPassword(req.Password)
+
+		_, err = db.Exec("UPDATE users SET password = ? WHERE email = ?", hashedPassword, email)
+		if err != nil {
+			http.Error(w, `{"error": "Erreur lors de la mise à jour du mot de passe"}`, http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"message": "Mot de passe mis à jour avec succès"}`))
+	}
 }
 
 func hashPassword(password string) string {
