@@ -1,39 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forum Minecraft</title>
-  <link rel="stylesheet" href="postlist.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forum Minecraft</title>
+    <link rel="stylesheet" href="postlist.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <header>
-        <a href="/" class="logo">Logo</a>
-    <div class="auth-buttons"></div>
-      </header>
+      <a href="/" class="logo">Logo</a>
+      <div class="auth-buttons"></div>
+    </header>
 
-  <div class="minecraft-banner">
-    <img src="/front/images/logo-minecraft.png" alt="Minecraft" />
-  </div>
+    <div class="minecraft-banner">
+      <img src="/front/images/logo-minecraft.png" alt="Minecraft" />
+    </div>
 
-  <div class="filters">
-    <input type="text" placeholder="Barre de recherche" class="search-bar" />
-    <select class="dropdown">
-      <option>Catégorie</option>
-      <option>Le</option>
-      <option>Poisson</option>
-      <option>Steve</option>
-    </select>
-    <select class="dropdown">
-      <option>Trier</option>
-      <option>Le</option>
-      <option>POAAAHAHAAHHAAH</option>
-    </select>
-  </div>
+    <div class="filters">
+      <input type="text" placeholder="Barre de recherche" class="search-bar" />
 
-  <main id="posts-container"></main>
+      <select class="dropdown category-filter">
+        <option value="">Toutes les catégories</option>
+        <option value="Mobs">Mobs</option>
+        <option value="Redstone">Redstone</option>
+        <option value="Créatif">Créatif</option>
+        <option value="Survie">Survie</option>
+        <option value="Hardcord">Hardcord</option>
+        <option value="Nether">Nether</option>
+        <option value="End">End</option>
+        <option value="Villageois">Villageois</option>
+        <option value="Mods">Mods</option>
+      </select>
 
-  <script type="module" src="postlist.js"></script>
-</body>
+      <select class="dropdown sort-filter">
+        <option value="">Trier par défaut</option>
+        <option value="date">Date (plus récent)</option>
+        <option value="oldest">Date (plus ancien)</option>
+        <option value="likes">Likes (plus likés)</option>
+        <option value="less-likes">Likes (moins likés)</option>
+      </select>
+    </div>
+
+    <main id="posts-container"></main>
+
+    <script type="module" src="postlist.js"></script>
+  </body>
 </html>
