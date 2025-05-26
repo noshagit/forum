@@ -82,16 +82,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       </p>
       <div class="category">${post.Themes}</div>
       <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
-      <div class="likes" >
-        Likes : 
-        <span id="like-count-${post.ID}">${post.Likes}</span>
-      </div>
+      <div class="likes" >Likes : ${post.Likes}</div>
     `;
     console.log("Post chargé avec succès :", post);
     updateLikeCount(post.ID);
+
+    const likeBtn = document.querySelector('.like-btn');
+    let likeSpan = document.createElement('span');
+    likeSpan.id = `like-count-${post.ID}`;
+    likeSpan.textContent = post.Likes || 0;
+    likeBtn.appendChild(likeSpan);
+
   } catch (err) {
     console.error("Erreur:", err);
     postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
   }
 });
-

@@ -1,4 +1,4 @@
-import { updateLikeCount, like, unlike } from '/api/like';
+import { updateLikeCount, like, unlike, likeStatus } from '/api/like';
 
 let allPosts = [];
 
