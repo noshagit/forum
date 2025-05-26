@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -9,14 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-func getDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "../database/bddforum.db")
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-}
 
 func LikesHandler(router *mux.Router) {
 	router.HandleFunc("/api/like", func(w http.ResponseWriter, r *http.Request) {
