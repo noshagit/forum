@@ -1,43 +1,72 @@
-const comments = [
-  { name: "David King", text: "i’m gay" },
-  { name: "Feng Min", text: "May the Kitsune guide you" },
-  { name: "Martin", text: "Quelqu’un a vu mon fils" },
-  { name: "Don Pollo", text: "Bla bla bla ble ble ble LIIIINGAAAA GULI GULI GULIII" }
-];
+const urlParams = new URLSearchParams(window.location.search);
+const postId = urlParams.get('id');
 
-function createCommentElement(comment) {
-  const container = document.createElement('div');
-  container.className = 'comment-block';
-
-  const avatar = document.createElement('div');
-  avatar.className = 'avatar';
-
-  const text = document.createElement('div');
-  text.className = 'text';
-
-  const name = document.createElement('div');
-  name.className = 'name';
-  name.textContent = comment.name;
-
-  const desc = document.createElement('div');
-  desc.className = 'desc';
-  desc.textContent = comment.text;
-
-  text.appendChild(name);
-  text.appendChild(desc);
-
-  container.appendChild(avatar);
-  container.appendChild(text);
-
-  return container;
+if (postId) {
+  fetch(`/api/post/${postId}`)
+    .then(response => response.json())
+    .then(post => {
+      renderPostDetail(post);
+    })
+    .catch(error => {
+      console.error("Erreur lors du chargement du post :", error);
+    });
+} else {
+  console.error("Aucun ID de post fourni.");
 }
 
-function displayComments() {
-  const container = document.getElementById('comments-container');
-  comments.forEach(comment => {
-    const el = createCommentElement(comment);
-    container.appendChild(el);
-  });
+
+function renderPostDetail(post) {
+  const postContainer = document.getElementById("dynamic-post");
+  postContainer.innerHTML = `
+  <div class="title-author">
+    <h1>${post.Title}</h1>
+    <p class="author">${post.Author || "Auteur inconnu"}</p>
+  </div>
+  <p class="content">${post.Content}</p>
+  <div class="category">${post.Themes}</div>
+  <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
+  <div class="likes">Likes : ${post.Likes}</div>
+`;
+
+
 }
 
-document.addEventListener('DOMContentLoaded', displayComments);
+document.addEventListener("DOMContentLoaded", async () => {
+  const postContainer = document.getElementById("dynamic-post");
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get("id");
+
+  if (!postContainer) {
+    console.error("Élément #dynamic-post introuvable dans le DOM");
+    return;
+  }
+
+  if (!postId) {
+    postContainer.innerHTML = "<p>Post introuvable (ID manquant).</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/post/${postId}`);
+    if (!res.ok) throw new Error("Post non trouvé");
+
+    const post = await res.json();
+
+    postContainer.innerHTML = `
+      <div class="title-author">
+        <h1>${post.Title}</h1>
+        <p class="author">${post.Author || "Auteur inconnu"}</p>
+      </div>
+      <p class="content">
+        ${post.Content}
+      </p>
+      <div class="category">${post.Themes}</div>
+      <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
+      <div class="likes">Likes : ${post.Likes}</div>
+    `;
+  } catch (err) {
+    console.error("Erreur:", err);
+    postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
+  }
+});
+

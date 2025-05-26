@@ -9,20 +9,12 @@
 </head>
 <body>
   <header>
-    <button onclick="location.href='/front/landing_page/landing_page.html'">LOGO</button>
+    <button onclick="location.href='/'">LOGO</button>
     <button onclick="location.href='/front/profil/profil.html'">PROFIL</button>
   </header>
 
-  <main>
-    <section class="main-post">
-      <div class="title-author">
-        <h1>Dead By Daylight c’est mieux</h1>
-        <p class="author">Jacque Noir</p>
-      </div>
-      <p class="content">
-        Soyons honnêtes : Minecraft, c’est sympa… quand on a 12 ans et qu’on veut construire une maison en terre. Mais pour ceux qui veulent du vrai gameplay, de la tension, du stress maîtrisé et des montées d’adrénaline à chaque partie, Dead by Daylight enterre Minecraft six pieds sous terre. Dans DBD, pas question de miner tranquillement pendant que des moutons bêlent en arrière-plan — ici, chaque seconde compte, chaque bruit peut signer ta mort, et chaque partie est un cocktail de stratégie, de panique et de pur plaisir sadique. Là où Minecraft se contente de laisser les joueurs faire « ce qu’ils veulent », DBD impose une ambiance, une intensité, et surtout, un vrai objectif : survivre ou traquer. Les killers sont emblématiques, les parties imprévisibles, et l’univers sombre bien plus stylé qu’un monde cubique sans âme. Alors oui, Minecraft peut faire rêver les nostalgiques et les architectes en herbe, mais Dead by Daylight, lui, te fait vibrer à chaque match. C’est pas un bac à sable, c’est un champ de bataille — et il n’y a pas photo sur lequel des deux est le plus palpitant.
-      </p>
-    </section>
+  <main id="post-detail">
+    <section class="main-post" id="dynamic-post"></section>
 
     <section class="reaction-buttons">
       <div class="reaction-box"><img src="/front/images/like.png" alt="Like"></div>
@@ -33,6 +25,6 @@
     <section id="comments-container" class="comments"></section>
   </main>
 
-  <script src="/back/script/comments.js"></script>
+  <script src="comments.js"></script>
 </body>
 </html>

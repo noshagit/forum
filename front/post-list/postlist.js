@@ -91,9 +91,9 @@ function renderPosts(posts) {
 
     const showMoreBtn = postEl.querySelector(".show-more");
     showMoreBtn.addEventListener("click", () => {
-      postEl.classList.toggle("expanded");
-      showMoreBtn.textContent = postEl.classList.contains("expanded") ? "Voir moins" : "Voir plus";
+      window.location.href = `/front/comments/comments.html?id=${post.ID}`;
     });
+
 
     const likeBtn = reactions.querySelector('.like-btn');
     let isLiked = false;

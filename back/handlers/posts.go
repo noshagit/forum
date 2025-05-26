@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -185,4 +187,53 @@ func GetComments(postID int) []Comment {
 	}
 
 	return comments
+}
+
+func CommentsHandler(router *mux.Router) {
+	router.HandleFunc("/front/comments/comments.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/comments/comments.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/comments/comments.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/comments/comments.css")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/comments/comments.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/comments/comments.js")
+	}).Methods("GET")
+
+	router.HandleFunc("/api/post/{id}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		idStr := vars["id"]
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "ID invalide", http.StatusBadRequest)
+			return
+		}
+
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
+		if err != nil {
+			http.Error(w, "Erreur base de données", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		query := "SELECT id, title, content, themes, likes, created_at FROM posts WHERE id = ?"
+		row := db.QueryRow(query, id)
+
+		var post Post
+		err = row.Scan(&post.ID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "Post non trouvé", http.StatusNotFound)
+				return
+			}
+			http.Error(w, "Erreur lors de la lecture du post", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(post)
+	}).Methods("GET")
 }

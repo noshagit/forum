@@ -39,14 +39,14 @@ func main() {
 	landingPageHandler(router)
 
 	handlers.ListPostHandler(router)
-	handlers.ChangePasswordHandlers(router)
+	handlers.CommentsHandler(router)
+	handlers.LikesHandler(router)
 
 	handlers.RegisterHandler(router)
 	handlers.LoginHandler(router)
 
 	handlers.ProfileHandler(router)
-
-	handlers.LikesHandler(router)
+	handlers.ChangePasswordHandlers(router)
 
 	fmt.Println("Server is launch on port 8080 : http://localhost:8080")
 	http.ListenAndServe(":8080", router)
