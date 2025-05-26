@@ -242,10 +242,11 @@ func ProfileHandler(router *mux.Router) {
 		var profile struct {
 			Pseudo string `json:"username"`
 			Email  string `json:"email"`
+			ID     int    `json:"id"`
 		}
 
-		row = db.QueryRow("SELECT username, email FROM users WHERE email = ?", email)
-		err = row.Scan(&profile.Pseudo, &profile.Email)
+		row = db.QueryRow("SELECT id, username, email FROM users WHERE email = ?", email)
+		err = row.Scan(&profile.ID, &profile.Pseudo, &profile.Email)
 		if err != nil {
 			http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
 			return
