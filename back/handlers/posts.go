@@ -1,11 +1,92 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
+	"net/http"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/gorilla/mux"
 )
+
+func ListPostHandler(router *mux.Router) {
+	router.HandleFunc("/front/post-list/postlist.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/post-list/postlist.html")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/post-list/postlist.css", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/post-list/postlist.css")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/post-list/postlist.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/post-list/postlist.js")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/like.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/like.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/share.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/share.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/comment.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/comment.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/front/images/logo-minecraft.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../../front/images/logo-minecraft.png")
+	}).Methods("GET")
+
+	router.HandleFunc("/api/posts", func(w http.ResponseWriter, r *http.Request) {
+		posts := GetPosts()
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(posts); err != nil {
+			http.Error(w, "Erreur lors de l'encodage JSON", http.StatusInternalServerError)
+		}
+	}).Methods("GET")
+}
+
+type Post struct {
+	ID        int
+	OwnerID   int
+	Title     string
+	Content   string
+	Likes     int
+	Themes    string
+	CreatedAt string
+}
+
+func GetPosts() []Post {
+	db, err := getDB()
+	if err != nil {
+		log.Println("Database connection error:", err)
+		return nil
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, owner_id, title, content, likes, themes, created_at FROM posts")
+	if err != nil {
+		log.Println("Database query error:", err)
+		return nil
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		if err := rows.Scan(&post.ID, &post.OwnerID, &post.Title, &post.Content, &post.Likes, &post.Themes, &post.CreatedAt); err != nil {
+			log.Println("Row scan error:", err)
+			continue
+		}
+		posts = append(posts, post)
+	}
+
+	return posts
+}
 
 func AddPost(id int, author, title, content string) {
 	db, err := getDB()
