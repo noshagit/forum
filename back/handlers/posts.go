@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -71,6 +72,8 @@ func ListPostHandler(router *mux.Router) {
 	}).Methods("GET")
 
 	router.HandleFunc("/api/add-post", AddPostHandler).Methods("POST")
+
+	router.HandleFunc("/api/modify-post", ModifyPostHandler).Methods("PUT")
 
 	router.HandleFunc("/api/delete-post", deletePostHandler).Methods("DELETE")
 }
@@ -277,25 +280,68 @@ func deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func ModifyPost(id int, newContent string) {
+func ModifyPost(id int, title string, newContent string, themes string) error {
+	log.Printf("Modification en cours pour ID=%d, titre='%s', contenu='%s', thème='%s'", id, title, newContent, themes)
 	db, err := getDB()
 	if err != nil {
-		log.Println("Database connection error:", err)
-		return
+		return fmt.Errorf("database connection error: %v", err)
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("UPDATE posts SET content = ? WHERE id = ?")
+	stmt, err := db.Prepare("UPDATE posts SET title = ?, content = ?, themes = ? WHERE id = ?")
 	if err != nil {
-		log.Println("Database preparation error:", err)
-		return
+		return fmt.Errorf("preparation error: %v", err)
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(newContent, id); err != nil {
-		log.Println("Database insertion error:", err)
+	res, err := stmt.Exec(title, newContent, themes, id)
+	if err != nil {
+		return fmt.Errorf("execution error: %v", err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("erreur lors de la récupération des lignes modifiées: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("aucune ligne modifiée. L’ID %d existe-t-il ?", id)
+	}
+
+	return nil
+}
+
+func ModifyPostHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 		return
 	}
+
+	var data struct {
+		ID      int    `json:"id"`
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Theme   string `json:"theme"`
+	}
+
+	log.Println("Tentative de décodage du JSON...")
+
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		log.Println("Erreur JSON :", err)
+		http.Error(w, "Données invalides", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("Données reçues : %+v\n", data)
+
+	if err := ModifyPost(data.ID, data.Title, data.Content, data.Theme); err != nil {
+		log.Println("Erreur ModifyPost :", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("Post modifié avec succès")
+	w.WriteHeader(http.StatusOK)
 }
 
 func GetComments(postID int) []Comment {

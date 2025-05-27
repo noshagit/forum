@@ -1,31 +1,76 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="comments.css">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-</head>
-<body>
-  <header>
-    <button onclick="location.href='/'">LOGO</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="comments.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <button onclick="location.href='/'">LOGO</button>
       <div class="auth-buttons"></div>
-  </header>
+    </header>
 
-  <main id="post-detail">
-    <section class="main-post" id="dynamic-post"></section>
+    <main id="post-detail">
+      <section class="main-post" id="dynamic-post"></section>
 
-    <section class="reaction-buttons">
-      <div class="reaction-box like-btn" id="${post.ID}">
-        <img src="/front/images/like.png" alt="Like">
+      <section class="reaction-buttons">
+        <div class="reaction-box like-btn" id="${post.ID}">
+          <img src="/front/images/like.png" alt="Like" />
+        </div>
+        <div class="reaction-box">
+          <img src="/front/images/comment.png" alt="Comments" />
+        </div>
+        <div class="reaction-box">
+          <img src="/front/images/share.png" alt="Share" />
+        </div>
+      </section>
+
+      <section id="comments-container" class="comments"></section>
+
+      <div id="edit-post-button-container"></div>
+
+      <div id="edit-post-modal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-edit-button">&times;</span>
+          <h2>Modifier le post</h2>
+          <form id="edit-post-form">
+            <input
+              type="text"
+              name="title"
+              id="edit-title"
+              placeholder="Titre"
+              required
+            /><br />
+            <textarea
+              name="content"
+              id="edit-content"
+              placeholder="Contenu"
+              required
+            ></textarea
+            ><br />
+            <select name="themes" id="edit-themes" required>
+              <option value="">Choisir une catégorie</option>
+              <option value="Mobs">Mobs</option>
+              <option value="Redstone">Redstone</option>
+              <option value="Créatif">Créatif</option>
+              <option value="Survie">Survie</option>
+              <option value="Hardcord">Hardcord</option>
+              <option value="Nether">Nether</option>
+              <option value="End">End</option>
+              <option value="Villageois">Villageois</option>
+              <option value="Mods">Mods</option></select
+            ><br />
+            <button type="submit">Enregistrer les modifications</button>
+          </form>
+        </div>
       </div>
-      <div class="reaction-box"><img src="/front/images/comment.png" alt="Comments"></div>
-      <div class="reaction-box"><img src="/front/images/share.png" alt="Share"></div>
-    </section>
+    </main>
 
-    <section id="comments-container" class="comments"></section>
-  </main>
-
-  <script type="module" src="comments.js"></script>
-</body>
+    <script type="module" src="comments.js"></script>
+  </body>
 </html>

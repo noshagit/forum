@@ -23,18 +23,18 @@ if (postId) {
 }
 
 const shareBtn = document.querySelector('.reaction-box img[alt="Share"]');
-    if (shareBtn) {
-      shareBtn.onclick = () => {
-        const postUrl = window.location.href;
-        navigator.clipboard.writeText(postUrl)
-          .then(() => {
-            alert("Lien copié dans le presse-papiers !");
-          })
-          .catch(() => {
-            alert("Impossible de copier le lien.");
-          });
-      };
-    }
+if (shareBtn) {
+  shareBtn.onclick = () => {
+    const postUrl = window.location.href;
+    navigator.clipboard.writeText(postUrl)
+      .then(() => {
+        alert("Lien copié dans le presse-papiers !");
+      })
+      .catch(() => {
+        alert("Impossible de copier le lien.");
+      });
+  };
+}
 
 async function renderPostDetail(post) {
   const postContainer = document.getElementById("dynamic-post");
@@ -104,36 +104,104 @@ async function renderPostDetail(post) {
         });
 
         postContainer.appendChild(deleteBtn);
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Modifier le post";
+        editBtn.classList.add("edit-button");
+        document.getElementById("edit-post-button-container").appendChild(editBtn);
+
+        // Prépare la modal
+        const modal = document.getElementById("edit-post-modal");
+        const closeModal = modal.querySelector(".close-edit-button");
+
+        // Bouton ouvrir la pop-up
+        editBtn.addEventListener("click", () => {
+          document.getElementById("edit-title").value = post.Title;
+          document.getElementById("edit-content").value = post.Content;
+          document.getElementById("edit-themes").value = post.Theme || "";
+          modal.classList.remove("hidden");
+        });
+
+        // Bouton fermer la pop-up
+        closeModal.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+
+        // Soumission du formulaire de modification
+        const editForm = document.getElementById("edit-post-form");
+        editForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const updatedPost = {
+            id: post.ID,
+            title: editForm.title.value,
+            content: editForm.content.value,
+            theme: editForm.themes.value
+          };
+
+          try {
+            const res = await fetch("/api/modify-post", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(updatedPost)
+            });
+
+            if (res.ok) {
+              alert("Post modifié avec succès !");
+              modal.classList.add("hidden");
+              location.reload();
+            } else {
+              alert("Erreur lors de la modification du post.");
+            }
+          } catch (err) {
+            console.error("Erreur réseau :", err);
+            alert("Erreur réseau.");
+          }
+        });
+      } else {
+        const likeBtn = document.querySelector('.like-btn');
+        likeBtn.style.display = "none"; // Cacher le bouton de like si l'utilisateur n'est pas l'auteur
       }
-    } catch (err) {
-      console.error("Erreur lors de la vérification du propriétaire du post :", err);
+    } catch (error) {
+      console.error("Erreur lors de la récupération du profil :", error);
+      alert("Erreur lors de la récupération du profil.");
     }
+  } else {
+    const likeBtn = document.querySelector('.like-btn');
+    likeBtn.style.display = "none"; // Cacher le bouton de like si l'utilisateur n'est pas connecté
   }
-}
+  updateLikeCount(post.ID);
+  const likeSpan = document.createElement('span');
+  likeSpan.id = `like-count-${post.ID}`;
+  likeSpan.textContent = post.Likes || 0;
+  likeBtn.appendChild(likeSpan);
+} 
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const postContainer = document.getElementById("dynamic-post");
-  const params = new URLSearchParams(window.location.search);
-  const postId = params.get("id");
+      document.addEventListener("DOMContentLoaded", async () => {
+        const postContainer = document.getElementById("dynamic-post");
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get("id");
 
-  if (!postContainer) {
-    console.error("Élément #dynamic-post introuvable dans le DOM");
-    return;
-  }
+        if (!postContainer) {
+          console.error("Élément #dynamic-post introuvable dans le DOM");
+          return;
+        }
 
-  if (!postId) {
-    postContainer.innerHTML = "<p>Post introuvable (ID manquant).</p>";
-    return;
-  }
+        if (!postId) {
+          postContainer.innerHTML = "<p>Post introuvable (ID manquant).</p>";
+          return;
+        }
 
-  try {
-    const res = await fetch(`/api/post/${postId}`);
-    if (!res.ok) throw new Error("Post non trouvé");
+        try {
+          const res = await fetch(`/api/post/${postId}`);
+          if (!res.ok) throw new Error("Post non trouvé");
 
-    const post = await res.json();
+          const post = await res.json();
 
-    postContainer.innerHTML = "";
-    postContainer.innerHTML = `
+          postContainer.innerHTML = "";
+          postContainer.innerHTML = `
       <div class="title-author">
         <h1>${post.Title}</h1>
         <p class="author">${post.Author || "Auteur inconnu"}</p>
@@ -143,54 +211,54 @@ document.addEventListener("DOMContentLoaded", async () => {
       </p>
       <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
     `;
-    console.log("Post chargé avec succès :", post);
-    updateLikeCount(post.ID);
+          console.log("Post chargé avec succès :", post);
+          updateLikeCount(post.ID);
 
-    const likeBtn = document.querySelector('.like-btn');
-    let likeSpan = document.createElement('span');
-    likeSpan.id = `like-count-${post.ID}`;
-    likeSpan.textContent = post.Likes || 0;
-    likeBtn.appendChild(likeSpan);
+          const likeBtn = document.querySelector('.like-btn');
+          let likeSpan = document.createElement('span');
+          likeSpan.id = `like-count-${post.ID}`;
+          likeSpan.textContent = post.Likes || 0;
+          likeBtn.appendChild(likeSpan);
 
-  } catch (err) {
-    console.error("Erreur:", err);
-    postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
-  }
-});
+        } catch (err) {
+          console.error("Erreur:", err);
+          postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
+        }
+      });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const authContainer = document.querySelector(".auth-buttons");
+      document.addEventListener("DOMContentLoaded", () => {
+        const authContainer = document.querySelector(".auth-buttons");
 
-  const buttons = [
-    { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
-    { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
-    { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
-  ];
+        const buttons = [
+          { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
+          { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
+          { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
+        ];
 
-  buttons.forEach(btn => {
-    const button = document.createElement("button");
-    button.className = "auth-button";
-    button.textContent = btn.text;
-    button.id = btn.id;
-    button.onclick = () => {
-      window.location.href = btn.url;
-    };
-    authContainer.appendChild(button);
-  });
+        buttons.forEach(btn => {
+          const button = document.createElement("button");
+          button.className = "auth-button";
+          button.textContent = btn.text;
+          button.id = btn.id;
+          button.onclick = () => {
+            window.location.href = btn.url;
+          };
+          authContainer.appendChild(button);
+        });
 
-  const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
+        const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
 
-  if (sessionCookie) {
-    document.getElementById("connexion-button").style.display = "none";
-    document.getElementById("inscription-button").style.display = "none";
-  } else {
-    document.getElementById("profil-button").style.display = "none";
-  }
+        if (sessionCookie) {
+          document.getElementById("connexion-button").style.display = "none";
+          document.getElementById("inscription-button").style.display = "none";
+        } else {
+          document.getElementById("profil-button").style.display = "none";
+        }
 
-  const ctaButton = document.querySelector(".cta-button");
-  if (ctaButton) {
-    ctaButton.addEventListener("click", () => {
-      window.location.href = "/front/post-list/postlist.html";
-    });
-  }
-});
+        const ctaButton = document.querySelector(".cta-button");
+        if (ctaButton) {
+          ctaButton.addEventListener("click", () => {
+            window.location.href = "/front/post-list/postlist.html";
+          });
+        }
+      });
