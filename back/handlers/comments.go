@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
 func CommentsHandler(router *mux.Router) {
-	router.HandleFunc("/api/get_avatar/{userID}", GetProfilePicture).Methods("GET")
+	router.HandleFunc("/api/get_avatar/{Author}", GetProfilePicture).Methods("GET")
 
 }
 
@@ -84,6 +85,7 @@ func GetProfilePicture(w http.ResponseWriter, r *http.Request) {
 
 	db, err := getDB()
 	if err != nil {
+		fmt.Println("Database connection error:", err)
 		http.Error(w, "Database connection error", http.StatusInternalServerError)
 		return
 	}
@@ -96,12 +98,12 @@ func GetProfilePicture(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
-
-	w.Header().Set("Content-Type", "image/jpeg")
-	http.ServeFile(w, r, avatarPath)
-	if err != nil {
-		log.Println("Error serving profile picture:", err)
-		http.Error(w, "Error serving profile picture", http.StatusInternalServerError)
-		return
+	var path string
+	if strings.Contains(avatarPath, "default.png") {
+		path = "../../front/pp/default.png"
+	} else {
+		path = "../.." + avatarPath
 	}
+	w.Header().Set("Content-Type", "image/png")
+	http.ServeFile(w, r, path)
 }
