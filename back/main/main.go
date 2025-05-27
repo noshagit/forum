@@ -39,6 +39,7 @@ func main() {
 	landingPageHandler(router)
 
 	handlers.ListPostHandler(router)
+	handlers.DetailedPostHandler(router)
 	handlers.CommentsHandler(router)
 	handlers.LikesHandler(router)
 

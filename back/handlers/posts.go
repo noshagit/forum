@@ -407,7 +407,25 @@ func GetComments(postID int) []Comment {
 	return comments
 }
 
-func CommentsHandler(router *mux.Router) {
+func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postIDStr := vars["postID"]
+
+	postID, err := strconv.Atoi(postIDStr)
+	if err != nil {
+		http.Error(w, "ID invalide", http.StatusBadRequest)
+		return
+	}
+
+	comments := GetComments(postID)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(comments); err != nil {
+		http.Error(w, "Erreur lors de l'encodage JSON", http.StatusInternalServerError)
+	}
+}
+
+func DetailedPostHandler(router *mux.Router) {
 	router.HandleFunc("/front/comments/comments.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/comments/comments.html")
 	}).Methods("GET")
@@ -419,6 +437,8 @@ func CommentsHandler(router *mux.Router) {
 	router.HandleFunc("/front/comments/comments.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/comments/comments.js")
 	}).Methods("GET")
+
+	router.HandleFunc("/api/comments/{postID}", GetCommentsHandler).Methods("GET")
 
 	router.HandleFunc("/api/post/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)

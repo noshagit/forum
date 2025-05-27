@@ -1,9 +1,18 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
+
+func CommentsHandler(router *mux.Router) {
+	router.HandleFunc("/api/get_avatar/{userID}", GetProfilePicture).Methods("GET")
+
+}
 
 func AddComment(id, postID int, author, content string) {
 	db, err := getDB()
@@ -65,6 +74,34 @@ func ModifyComment(id int, newContent string) {
 
 	if _, err = stmt.Exec(newContent, id); err != nil {
 		log.Println("Database insertion error:", err)
+		return
+	}
+}
+
+func GetProfilePicture(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["Author"]
+
+	db, err := getDB()
+	if err != nil {
+		http.Error(w, "Database connection error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var avatarPath string
+	err = db.QueryRow("SELECT profile_picture FROM users WHERE username = ?", username).Scan(&avatarPath)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	http.ServeFile(w, r, avatarPath)
+	if err != nil {
+		log.Println("Error serving profile picture:", err)
+		http.Error(w, "Error serving profile picture", http.StatusInternalServerError)
 		return
 	}
 }

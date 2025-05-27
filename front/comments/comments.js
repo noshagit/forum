@@ -259,3 +259,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const commentsContainer = document.getElementById("comments-container");
+  const postId = new URLSearchParams(window.location.search).get("id");
+
+  if (!commentsContainer || !postId) {
+    console.error("Élément #comments-container introuvable ou ID de post manquant");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/comments/${postId}`);
+    if (!res.ok)
+      console.log("Erreur lors de la récupération des commentaires");
+    let comments = await res.json();
+    if (comments === null || comments.length === 0) {
+      commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
+      return;
+    }
+    commentsContainer.innerHTML = "";
+    comments.forEach(async comment => {
+      const commentDiv = document.createElement("div");
+      commentDiv.className = "comment-block";
+      commentDiv.innerHTML = `
+        <img alt="avatar" class="avatar">
+        <p class="comment-author">${comment.Author || "Auteur inconnu"}</p>
+        <p class="comment-content">${comment.Content}</p>
+        <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
+      `;
+      
+      const avatar = await fetch(`/api/get_avatar/${comment.Author}`);
+      commentDiv.querySelector(".avatar").src = avatar.url
+
+      commentsContainer.appendChild(commentDiv);
+      console.log("Commentaire ajouté :", comment);
+    });
+  } catch (err) {
+    console.error("Erreur lors de la récupération des commentaires :", err);
+    commentsContainer.innerHTML = "<p>Erreur lors du chargement des commentaires.</p>";
+  }
+});
