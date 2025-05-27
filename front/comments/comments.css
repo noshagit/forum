@@ -108,3 +108,32 @@ header button {
 .comment-block .desc {
   font-size: 14px;
 }
+
+.delete-button {
+  background-color: #75563D;
+  color: #EBF2FA;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+.delete-button:hover {
+  background-color: #22392A;
+}
+
+.reaction-box {
+  cursor: pointer;
+}
+
+.reaction-box img {
+  transition: transform 0.2s;
+}
+
+.reaction-box:hover img {
+  transform: scale(1.15);
+}

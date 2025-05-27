@@ -3,6 +3,12 @@ import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
 
+function setDocumentTitle(title) {
+  if (title) {
+    document.title = title;
+  }
+}
+
 if (postId) {
   fetch(`/api/post/${postId}`)
     .then(response => response.json())
@@ -16,8 +22,21 @@ if (postId) {
   console.error("Aucun ID de post fourni.");
 }
 
+const shareBtn = document.querySelector('.reaction-box img[alt="Share"]');
+    if (shareBtn) {
+      shareBtn.onclick = () => {
+        const postUrl = window.location.href;
+        navigator.clipboard.writeText(postUrl)
+          .then(() => {
+            alert("Lien copié dans le presse-papiers !");
+          })
+          .catch(() => {
+            alert("Impossible de copier le lien.");
+          });
+      };
+    }
 
-function renderPostDetail(post) {
+async function renderPostDetail(post) {
   const postContainer = document.getElementById("dynamic-post");
   postContainer.innerHTML = `
   <div class="title-author">
@@ -25,10 +44,10 @@ function renderPostDetail(post) {
     <p class="author">${post.Author || "Auteur inconnu"}</p>
   </div>
   <p class="content">${post.Content}</p>
-  <div class="category">${post.Themes}</div>
   <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
-  <div class="likes">Likes : ${post.Likes}</div>
   `;
+
+  setDocumentTitle(post.Title);
 
   const likeBtn = document.querySelector('.like-btn');
   let isLiked = false;
@@ -46,8 +65,50 @@ function renderPostDetail(post) {
       isLiked = true;
       likeBtn.classList.add('liked');
     }
+
     updateLikeCount(post.ID);
   });
+
+  const isLoggedIn = document.cookie.includes("session_token=");
+  if (isLoggedIn) {
+    try {
+      const profileRes = await fetch("/get-profile");
+      if (!profileRes.ok) throw new Error("Erreur lors de la récupération du profil");
+
+      const user = await profileRes.json();
+
+      if (user.ID === post.ID_Owner) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Supprimer le post";
+        deleteBtn.classList.add("delete-button");
+
+        deleteBtn.addEventListener("click", async () => {
+          const confirmation = confirm("Es-tu sûr de vouloir supprimer ce post ?");
+          if (!confirmation) return;
+
+          try {
+            const response = await fetch(`/api/delete-post?id=${post.ID}`, {
+              method: "DELETE"
+            });
+
+            if (response.ok) {
+              alert("Post supprimé avec succès.");
+              window.location.href = "/front/post-list/postlist.html";
+            } else {
+              alert("Erreur lors de la suppression du post.");
+            }
+          } catch (error) {
+            console.error("Erreur réseau :", error);
+            alert("Erreur réseau lors de la suppression.");
+          }
+        });
+
+        postContainer.appendChild(deleteBtn);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la vérification du propriétaire du post :", err);
+    }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -80,7 +141,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       <p class="content">
         ${post.Content}
       </p>
-      <div class="category">Catégorie : ${post.Themes}</div>
       <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
     `;
     console.log("Post chargé avec succès :", post);

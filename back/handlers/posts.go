@@ -12,6 +12,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Comment struct {
+	ID        int
+	PostID    int
+	OwnerID   int
+	Author    string
+	Content   string
+	CreatedAt string
+}
+
+type Post struct {
+	ID        int
+	OwnerID   int
+	Title     string
+	Content   string
+	Likes     int
+	Themes    string
+	CreatedAt string
+	Author    string
+}
+
 func ListPostHandler(router *mux.Router) {
 	router.HandleFunc("/front/post-list/postlist.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../../front/post-list/postlist.html")
@@ -51,17 +71,32 @@ func ListPostHandler(router *mux.Router) {
 	}).Methods("GET")
 
 	router.HandleFunc("/api/add-post", AddPostHandler).Methods("POST")
+
+	router.HandleFunc("/api/delete-post", deletePostHandler).Methods("DELETE")
 }
 
-type Post struct {
-	ID        int
-	OwnerID   int
-	Title     string
-	Content   string
-	Likes     int
-	Themes    string
-	CreatedAt string
-	Author    string
+func GetUserIDFromSession(r *http.Request) (int, error) {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		return 0, err
+	}
+
+	db, err := getDB()
+	if err != nil {
+		log.Println("Database connection error:", err)
+		return 0, err
+	}
+	defer db.Close()
+
+	sessionToken := cookie.Value
+
+	var userID int
+	err = db.QueryRow("SELECT user_id FROM sessions WHERE token = ?", sessionToken).Scan(&userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }
 
 func GetPosts() []Post {
@@ -184,6 +219,64 @@ func DeletePost(id int) {
 	}
 }
 
+func deletePostHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Non connecté", http.StatusUnauthorized)
+		return
+	}
+	sessionToken := cookie.Value
+
+	// Ouvrir la base de données
+	db, err := getDB()
+	if err != nil {
+		http.Error(w, "Erreur DB", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var email string
+	err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", sessionToken).Scan(&email)
+	if err != nil {
+		http.Error(w, "Session invalide", http.StatusUnauthorized)
+		return
+	}
+
+	var userID int
+	err = db.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&userID)
+	if err != nil {
+		http.Error(w, "Utilisateur introuvable", http.StatusInternalServerError)
+		return
+	}
+
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID invalide", http.StatusBadRequest)
+		return
+	}
+
+	var ownerID int
+	err = db.QueryRow("SELECT owner_id FROM posts WHERE id = ?", id).Scan(&ownerID)
+	if err != nil {
+		http.Error(w, "Post introuvable", http.StatusNotFound)
+		return
+	}
+
+	if ownerID != userID {
+		http.Error(w, "Vous n'êtes pas propriétaire de ce post", http.StatusForbidden)
+		return
+	}
+
+	DeletePost(id)
+	w.WriteHeader(http.StatusOK)
+}
+
 func ModifyPost(id int, newContent string) {
 	db, err := getDB()
 	if err != nil {
@@ -203,15 +296,6 @@ func ModifyPost(id int, newContent string) {
 		log.Println("Database insertion error:", err)
 		return
 	}
-}
-
-type Comment struct {
-	ID        int
-	PostID    int
-	OwnerID   int
-	Author    string
-	Content   string
-	CreatedAt string
 }
 
 func GetComments(postID int) []Comment {
