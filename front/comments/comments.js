@@ -174,8 +174,6 @@ async function renderPostDetail(post) {
   }
   updateLikeCount(post.ID);
   const likeSpan = document.createElement('span');
-  likeSpan.id = `like-count-${post.ID}`;
-  likeSpan.textContent = post.Likes || 0;
   likeBtn.appendChild(likeSpan);
 } 
 
@@ -217,7 +215,6 @@ async function renderPostDetail(post) {
           const likeBtn = document.querySelector('.like-btn');
           let likeSpan = document.createElement('span');
           likeSpan.id = `like-count-${post.ID}`;
-          likeSpan.textContent = post.Likes || 0;
           likeBtn.appendChild(likeSpan);
 
         } catch (err) {
