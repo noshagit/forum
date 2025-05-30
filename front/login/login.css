@@ -34,61 +34,76 @@ body {
   }
   
   .login-container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-  }
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
   
-  .login-box {
-    background-color: #2C5530;
-    padding: 40px;
-    border-radius: 20px;
-    margin: 0 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    min-width: 300px;
-    max-width: 500px;
-    flex: 2;
-  }
+.login-box {
+  background-color: #2C5530;
+  padding: 3vw;
+  border-radius: 20px;
+  margin-left: 5vw;
+  display: flex;
+  flex-direction: column;
+  gap: 2vw;
+  min-width: 300px;
+  max-width: 50vw;
+  flex: 2;
+  width: 100%;
+}
+
   
-  .login-box input {
-    background-color: #75563D;
-    border: none;
-    padding: 12px;
-    color: white;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
-    border-radius: 10px;
-  }
+.login-box input,
+.cta {
+  background-color: #75563D;
+  border: none;
+  padding: 0.8vw 1vw;
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8vw;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
   
   .login-box input::placeholder {
     color: #f0f0f0;
   }
   
+.image-container {
+  flex: 1;
+  height: 100%;
+  max-width: 33.33vw;
+  margin: 0;
+  padding: 0;
+}
+  
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .login-box {
+    max-width: 90vw;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .login-box input,
   .cta {
-    background-color: #75563D;
-    color: white;
-    border: none;
+    font-size: 10px;
     padding: 12px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 12px;
-    border-radius: 10px;
-    cursor: pointer;
   }
-  
+
   .image-container {
-    flex: 1;
-    height: 100%;
-    overflow: hidden;
+    display: none;
   }
-  
-  .image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  
+}

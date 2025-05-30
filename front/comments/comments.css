@@ -12,6 +12,12 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 10px 20px;
+  align-items: center;
+}
+
+.left-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 header button {
@@ -144,7 +150,7 @@ header button {
 }
 
 #edit-post-modal.modal {
-  background-color: rgba(34, 57, 42, 0.8); /* Cohérent avec .modal */
+  background-color: rgba(34, 57, 42, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,7 +162,7 @@ header button {
 }
 
 #edit-post-modal .modal-content {
-  background-color: #F8E9E7; /* Même fond que .main-post et .modal-content */
+  background-color: #F8E9E7;
   padding: 30px;
   border-radius: 20px;
   width: 90%;
@@ -198,7 +204,7 @@ header button {
 }
 
 #edit-post-modal button[type="submit"] {
-  background-color: #75563D; /* Cohérent avec .delete-button et .reaction-box */
+  background-color: #75563D;
   color: white;
   font-family: 'Press Start 2P', cursive;
   font-size: 10px;
