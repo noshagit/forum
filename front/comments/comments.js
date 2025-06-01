@@ -118,7 +118,7 @@ async function renderPostDetail(post) {
         editBtn.addEventListener("click", () => {
           document.getElementById("edit-title").value = post.Title;
           document.getElementById("edit-content").value = post.Content;
-          document.getElementById("edit-themes").value = post.Theme || "";
+          document.getElementById("edit-themes").value = post.Themes;
           modal.classList.remove("hidden");
         });
 
@@ -177,10 +177,9 @@ async function renderPostDetail(post) {
   likeBtn.appendChild(likeSpan);
 }
 
+// load post & comments
 document.addEventListener("DOMContentLoaded", async () => {
   const postContainer = document.getElementById("dynamic-post");
-  const params = new URLSearchParams(window.location.search);
-  const postId = params.get("id");
 
   if (!postContainer) {
     console.error("Élément #dynamic-post introuvable dans le DOM");
@@ -223,6 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+// load header buttons
 document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.querySelector(".auth-buttons");
 
@@ -262,7 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const commentsContainer = document.getElementById("comments-container");
-  const postId = new URLSearchParams(window.location.search).get("id");
 
   if (!commentsContainer || !postId) {
     console.error("Élément #comments-container introuvable ou ID de post manquant");
@@ -271,8 +270,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     let res = await fetch(`/api/comments/${postId}`);
-    if (!res.ok)
+    if (!res.ok) {
       console.log("Erreur lors de la récupération des commentaires");
+      return;
+    }
+
     let comments = await res.json();
     if (comments === null || comments.length === 0) {
       commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
