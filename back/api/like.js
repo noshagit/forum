@@ -37,7 +37,7 @@ async function getUserId() {
 
 async function updateLikeCount(postId) {
     try {
-        const res = await fetch(`http://localhost:8080/posts/${postId}/like_count`);
+        const res = await fetch(`/posts/${postId}/like_count`);
         const data = await res.json();
         document.getElementById(`like-count-${postId}`).textContent = data.likes;
     } catch (err) {
@@ -52,7 +52,7 @@ async function likeStatus(postId) {
         return;
     }
     try {
-        const res = await fetch(`http://localhost:8080/posts/is_liked`, {
+        const res = await fetch(`/posts/is_liked`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ async function like(postId) {
         return;
     }
     try {
-        await fetch(`http://localhost:8080/posts/like`, {
+        await fetch(`/posts/like`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -96,7 +96,7 @@ async function unlike(postId) {
         return;
     }
     try {
-        await fetch(`http://localhost:8080/posts/unlike`, {
+        await fetch(`/posts/unlike`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
