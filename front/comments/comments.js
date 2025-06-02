@@ -2,6 +2,7 @@ import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
 
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
+let isLoggedIn = document.cookie.includes("session_token=");
 
 function setDocumentTitle(title) {
   if (title) {
@@ -69,7 +70,6 @@ async function renderPostDetail(post) {
     updateLikeCount(post.ID);
   });
 
-  const isLoggedIn = document.cookie.includes("session_token=");
   if (isLoggedIn) {
     try {
       const profileRes = await fetch("/get-profile");
@@ -318,19 +318,25 @@ async function displayComments() {
       console.log("Erreur lors de la récupération des commentaires");
       return;
     }
-
     let comments = await res.json();
     if (comments === null || comments.length === 0) {
       commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
       return;
     }
 
-    const profileRes = await fetch("/get-profile");
-    if (!profileRes.ok)
-      throw new Error("Erreur lors de la récupération du profil");
+    let userID = null;
 
-    const user = await profileRes.json();
-    const userID = user.profile.id;
+    if (isLoggedIn) {
+      const profileRes = await fetch("/get-profile");
+      if (!profileRes.ok) {
+        console.log("Erreur lors de la récupération du profil");
+        return;
+      }
+      const user = await profileRes.json();
+      userID = user.profile.id;
+    } else {
+      document.getElementById("add-comment-btn").style.display = "none";
+    }
 
     commentsContainer.innerHTML = "";
     comments.forEach(comment => {
@@ -343,7 +349,7 @@ async function displayComments() {
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
 
-      if (userID === comment.OwnerID) {
+      if (isLoggedIn && userID === comment.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer";
         deleteBtn.className = "delete-comment-button";
@@ -408,7 +414,7 @@ async function displayComments() {
       commentsContainer.appendChild(commentDiv);
     });
   } catch (err) {
-    console.error("Erreur lors de la récupération des commentaires :", err);
+    console.error("BBBErreur lors de la récupération des commentaires :", err);
     commentsContainer.innerHTML = "<p>Erreur lors du chargement des commentaires.</p>";
   }
 }
