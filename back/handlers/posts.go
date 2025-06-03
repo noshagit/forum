@@ -324,23 +324,56 @@ func ModifyPostHandler(w http.ResponseWriter, r *http.Request) {
 		Theme   string `json:"theme"`
 	}
 
-	log.Println("Tentative de décodage du JSON...")
-
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		log.Println("Erreur JSON :", err)
 		http.Error(w, "Données invalides", http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("Données reçues : %+v\n", data)
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Non connecté", http.StatusUnauthorized)
+		return
+	}
+	sessionToken := cookie.Value
+
+	db, err := getDB()
+	if err != nil {
+		http.Error(w, "Erreur DB", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	var email string
+	err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", sessionToken).Scan(&email)
+	if err != nil {
+		http.Error(w, "Session invalide", http.StatusUnauthorized)
+		return
+	}
+
+	var userID int
+	err = db.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&userID)
+	if err != nil {
+		http.Error(w, "Utilisateur introuvable", http.StatusInternalServerError)
+		return
+	}
+
+	var ownerID int
+	err = db.QueryRow("SELECT owner_id FROM posts WHERE id = ?", data.ID).Scan(&ownerID)
+	if err != nil {
+		http.Error(w, "Post introuvable", http.StatusNotFound)
+		return
+	}
+
+	if ownerID != userID {
+		http.Error(w, "Vous n'êtes pas propriétaire de ce post", http.StatusForbidden)
+		return
+	}
 
 	if err := ModifyPost(data.ID, data.Title, data.Content, data.Theme); err != nil {
-		log.Println("Erreur ModifyPost :", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	log.Println("Post modifié avec succès")
 	w.WriteHeader(http.StatusOK)
 }
 

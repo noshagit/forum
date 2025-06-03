@@ -1,4 +1,4 @@
-document.getElementById("signup-form").addEventListener("submit", async function(event) {
+document.getElementById("signup-form").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     let pseudo = document.getElementById("pseudo").value;

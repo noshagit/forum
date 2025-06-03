@@ -174,34 +174,32 @@ async function renderPostDetail(post) {
   }
   updateLikeCount(post.ID);
   const likeSpan = document.createElement('span');
-  likeSpan.id = `like-count-${post.ID}`;
-  likeSpan.textContent = post.Likes || 0;
   likeBtn.appendChild(likeSpan);
-} 
+}
 
-      document.addEventListener("DOMContentLoaded", async () => {
-        const postContainer = document.getElementById("dynamic-post");
-        const params = new URLSearchParams(window.location.search);
-        const postId = params.get("id");
+document.addEventListener("DOMContentLoaded", async () => {
+  const postContainer = document.getElementById("dynamic-post");
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get("id");
 
-        if (!postContainer) {
-          console.error("Élément #dynamic-post introuvable dans le DOM");
-          return;
-        }
+  if (!postContainer) {
+    console.error("Élément #dynamic-post introuvable dans le DOM");
+    return;
+  }
 
-        if (!postId) {
-          postContainer.innerHTML = "<p>Post introuvable (ID manquant).</p>";
-          return;
-        }
+  if (!postId) {
+    postContainer.innerHTML = "<p>Post introuvable (ID manquant).</p>";
+    return;
+  }
 
-        try {
-          const res = await fetch(`/api/post/${postId}`);
-          if (!res.ok) throw new Error("Post non trouvé");
+  try {
+    const res = await fetch(`/api/post/${postId}`);
+    if (!res.ok) throw new Error("Post non trouvé");
 
-          const post = await res.json();
+    const post = await res.json();
 
-          postContainer.innerHTML = "";
-          postContainer.innerHTML = `
+    postContainer.innerHTML = "";
+    postContainer.innerHTML = `
       <div class="title-author">
         <h1>${post.Title}</h1>
         <p class="author">${post.Author || "Auteur inconnu"}</p>
@@ -211,54 +209,53 @@ async function renderPostDetail(post) {
       </p>
       <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
     `;
-          console.log("Post chargé avec succès :", post);
-          updateLikeCount(post.ID);
+    console.log("Post chargé avec succès :", post);
+    updateLikeCount(post.ID);
 
-          const likeBtn = document.querySelector('.like-btn');
-          let likeSpan = document.createElement('span');
-          likeSpan.id = `like-count-${post.ID}`;
-          likeSpan.textContent = post.Likes || 0;
-          likeBtn.appendChild(likeSpan);
+    const likeBtn = document.querySelector('.like-btn');
+    let likeSpan = document.createElement('span');
+    likeSpan.id = `like-count-${post.ID}`;
+    likeBtn.appendChild(likeSpan);
 
-        } catch (err) {
-          console.error("Erreur:", err);
-          postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
-        }
-      });
+  } catch (err) {
+    console.error("Erreur:", err);
+    postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
+  }
+});
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const authContainer = document.querySelector(".auth-buttons");
+document.addEventListener("DOMContentLoaded", () => {
+  const authContainer = document.querySelector(".auth-buttons");
 
-        const buttons = [
-          { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
-          { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
-          { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
-        ];
+  const buttons = [
+    { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
+    { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
+    { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
+  ];
 
-        buttons.forEach(btn => {
-          const button = document.createElement("button");
-          button.className = "auth-button";
-          button.textContent = btn.text;
-          button.id = btn.id;
-          button.onclick = () => {
-            window.location.href = btn.url;
-          };
-          authContainer.appendChild(button);
-        });
+  buttons.forEach(btn => {
+    const button = document.createElement("button");
+    button.className = "auth-button";
+    button.textContent = btn.text;
+    button.id = btn.id;
+    button.onclick = () => {
+      window.location.href = btn.url;
+    };
+    authContainer.appendChild(button);
+  });
 
-        const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
+  const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
 
-        if (sessionCookie) {
-          document.getElementById("connexion-button").style.display = "none";
-          document.getElementById("inscription-button").style.display = "none";
-        } else {
-          document.getElementById("profil-button").style.display = "none";
-        }
+  if (sessionCookie) {
+    document.getElementById("connexion-button").style.display = "none";
+    document.getElementById("inscription-button").style.display = "none";
+  } else {
+    document.getElementById("profil-button").style.display = "none";
+  }
 
-        const ctaButton = document.querySelector(".cta-button");
-        if (ctaButton) {
-          ctaButton.addEventListener("click", () => {
-            window.location.href = "/front/post-list/postlist.html";
-          });
-        }
-      });
+  const ctaButton = document.querySelector(".cta-button");
+  if (ctaButton) {
+    ctaButton.addEventListener("click", () => {
+      window.location.href = "/front/post-list/postlist.html";
+    });
+  }
+});
