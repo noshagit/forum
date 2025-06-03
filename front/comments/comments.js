@@ -77,7 +77,7 @@ async function renderPostDetail(post) {
 
       const user = await profileRes.json();
 
-      if (user.ID === post.ID_Owner) {
+      if (user.profile.id === post.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer le post";
         deleteBtn.classList.add("delete-button");
@@ -160,9 +160,6 @@ async function renderPostDetail(post) {
             alert("Erreur réseau.");
           }
         });
-      } else {
-        const likeBtn = document.querySelector('.like-btn');
-        likeBtn.style.display = "none"; // Cacher le bouton de like si l'utilisateur n'est pas l'auteur
       }
     } catch (error) {
       console.error("Erreur lors de la récupération du profil :", error);
@@ -172,9 +169,9 @@ async function renderPostDetail(post) {
     const likeBtn = document.querySelector('.like-btn');
     likeBtn.style.display = "none"; // Cacher le bouton de like si l'utilisateur n'est pas connecté
   }
-  updateLikeCount(post.ID);
   const likeSpan = document.createElement('span');
   likeBtn.appendChild(likeSpan);
+  updateLikeCount(post.ID);
 }
 
 // load post & comments

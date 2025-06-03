@@ -40,6 +40,7 @@ function loadProfile() {
         alert("Vous n'êtes pas connecté.");
         window.location.href = "/front/login/login.html";
     }
+    showPosts();
 }
 
 function logout() {
@@ -117,5 +118,84 @@ function updateProfile() {
         });
 }
 
+function showPosts() {
+    const sessionToken = getCookie("session_token");
+
+    if (!sessionToken) {
+        return
+    }
+    fetch("/user-posts", {
+        method: "GET",
+        credentials: "include",
+    })
+        .then(response => response.json())
+        .then(posts => {
+            console.log(posts);
+            renderPosts(posts);
+        })
+        .catch(error => {
+            console.error("Erreur lors de la récupération des posts :", error);
+        });
+}
+
+
+function renderPosts(posts) {
+    const postsContainer = document.getElementById("posts-container");
+    postsContainer.innerHTML = "";
+
+    posts.forEach(post => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "post-container";
+
+        const postEl = document.createElement("div");
+        postEl.className = "post";
+
+        postEl.innerHTML = `
+        <h2>${post.Title}</h2>
+        <p>${post.Content}</p>
+        <div class="category">${post.Themes || "Aucune catégorie"}</div>
+        <button class="show-more">Voir plus</button>
+        `;
+
+        const reactions = document.createElement("div");
+        reactions.className = "reactions";
+        reactions.innerHTML = `
+        <div class="reaction-box like-btn" id="${post.ID}">
+            <img src="/front/images/like.png" alt="like">
+            <span class="like-count" id="like-count-${post.ID}">${post.Likes}</span>
+        </div>
+        `;
+
+        wrapper.appendChild(postEl);
+        wrapper.appendChild(reactions);
+        postsContainer.appendChild(wrapper);
+
+        const showMoreBtn = postEl.querySelector(".show-more");
+        showMoreBtn.addEventListener("click", () => {
+            window.location.href = `/front/comments/comments.html?id=${post.ID}`;
+        });
+
+        /*const likeBtn = reactions.querySelector('.like-btn');
+        let isLiked = false;
+        isLiked = likeStatus(post.ID);
+        if (isLiked)
+            likeBtn.classList.add('liked');
+
+        likeBtn.addEventListener('click', async () => {
+            if (isLiked) {
+                await unlike(post.ID);
+                isLiked = false;
+                likeBtn.classList.remove('liked');
+            } else {
+                await like(post.ID);
+                isLiked = true;
+                likeBtn.classList.add('liked');
+            }
+            updateLikeCount(post.ID);
+        });
+
+        updateLikeCount(post.ID);*/
+    });
+}
 
 document.querySelector(".cta").addEventListener("click", updateProfile);
