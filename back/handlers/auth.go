@@ -395,6 +395,20 @@ func ProfileHandler(router *mux.Router) {
 			return
 		}
 
+		_, err = tx.Exec("UPDATE comments SET owner_id = 0 WHERE owner_id = (SELECT id FROM users WHERE email = ?)", email)
+		if err != nil {
+			tx.Rollback()
+			http.Error(w, "Error updating posts", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = tx.Exec("UPDATE posts SET owner_id = 0 WHERE owner_id = (SELECT id FROM users WHERE email = ?)", email)
+		if err != nil {
+			tx.Rollback()
+			http.Error(w, "Error updating posts", http.StatusInternalServerError)
+			return
+		}
+
 		_, err = tx.Exec("DELETE FROM users WHERE email = ?", email)
 		if err != nil {
 			tx.Rollback()
