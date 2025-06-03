@@ -110,7 +110,7 @@ func GetPosts() []Post {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, owner_id, title, content, likes, themes, created_at FROM posts")
+	rows, err := db.Query("SELECT id, owner_id, title, content, likes, themes, created_at FROM posts ORDER BY created_at DESC")
 	if err != nil {
 		log.Println("Database query error:", err)
 		return nil
@@ -463,7 +463,7 @@ func DetailedPostHandler(router *mux.Router) {
 
 		var post Post
 		err = row.Scan(&post.ID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt, &post.Author)
-
+		fmt.Println(post, err)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "Post non trouvé", http.StatusNotFound)

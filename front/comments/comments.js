@@ -107,7 +107,7 @@ async function renderPostDetail(post) {
 
         const editBtn = document.createElement("button");
         editBtn.textContent = "Modifier le post";
-        editBtn.classList.add("edit-button");
+        editBtn.id = ("edit-button");
         document.getElementById("edit-post-button-container").appendChild(editBtn);
 
         // Prépare la modal
