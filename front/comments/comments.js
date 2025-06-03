@@ -2,6 +2,7 @@ import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
 
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
+let isLoggedIn = document.cookie.includes("session_token=");
 
 function setDocumentTitle(title) {
   if (title) {
@@ -69,7 +70,6 @@ async function renderPostDetail(post) {
     updateLikeCount(post.ID);
   });
 
-  const isLoggedIn = document.cookie.includes("session_token=");
   if (isLoggedIn) {
     try {
       const profileRes = await fetch("/get-profile");
@@ -118,7 +118,7 @@ async function renderPostDetail(post) {
         editBtn.addEventListener("click", () => {
           document.getElementById("edit-title").value = post.Title;
           document.getElementById("edit-content").value = post.Content;
-          document.getElementById("edit-themes").value = post.Theme || "";
+          document.getElementById("edit-themes").value = post.Themes;
           modal.classList.remove("hidden");
         });
 
@@ -177,10 +177,9 @@ async function renderPostDetail(post) {
   likeBtn.appendChild(likeSpan);
 }
 
+// load post & comments
 document.addEventListener("DOMContentLoaded", async () => {
   const postContainer = document.getElementById("dynamic-post");
-  const params = new URLSearchParams(window.location.search);
-  const postId = params.get("id");
 
   if (!postContainer) {
     console.error("Élément #dynamic-post introuvable dans le DOM");
@@ -221,8 +220,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Erreur:", err);
     postContainer.innerHTML = "<p>Erreur lors du chargement du post.</p>";
   }
+  await displayComments();
 });
 
+// load header buttons
 document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.querySelector(".auth-buttons");
 
@@ -259,3 +260,161 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// add a comment
+document.addEventListener("DOMContentLoaded", () => {
+  const addCommentBtn = document.getElementById("add-comment-btn");
+  const commentForm = document.getElementById("comment-form");
+
+  addCommentBtn.addEventListener("click", () => {
+    commentForm.classList.toggle("hidden");
+  });
+
+  commentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const content = document.getElementById("comment-content").value;
+
+    if (!content.trim()) {
+      alert("Le contenu du commentaire ne peut pas être vide.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/add-comment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ postId, content })
+      });
+
+      if (res.ok) {
+        alert("Commentaire ajouté avec succès !");
+        commentForm.reset();
+        commentForm.classList.add("hidden");
+
+        await displayComments();
+      } else {
+        alert("Erreur lors de l'ajout du commentaire.");
+      }
+    } catch (err) {
+      console.error("Erreur réseau :", err);
+      alert("Erreur réseau lors de l'ajout du commentaire.");
+    }
+  });
+});
+
+async function displayComments() {
+  const commentsContainer = document.getElementById("comments-container");
+
+  if (!commentsContainer || !postId) {
+    console.error("Élément #comments-container introuvable ou ID de post manquant");
+    return;
+  }
+
+  try {
+    let res = await fetch(`/api/comments/${postId}`);
+    if (!res.ok) {
+      console.log("Erreur lors de la récupération des commentaires");
+      return;
+    }
+    let comments = await res.json();
+    if (comments === null || comments.length === 0) {
+      commentsContainer.innerHTML = "<p>Aucun commentaire pour ce post.</p>";
+      return;
+    }
+
+    let userID = null;
+
+    if (isLoggedIn) {
+      const profileRes = await fetch("/get-profile");
+      if (!profileRes.ok) {
+        console.log("Erreur lors de la récupération du profil");
+        return;
+      }
+      const user = await profileRes.json();
+      userID = user.profile.id;
+    } else {
+      document.getElementById("add-comment-btn").style.display = "none";
+    }
+
+    commentsContainer.innerHTML = "";
+    comments.forEach(comment => {
+      const commentDiv = document.createElement("div");
+      commentDiv.className = "comment-block";
+      commentDiv.innerHTML = `
+          <img class="avatar" src="/api/get_avatar/${comment.Author}">
+          <p class="comment-author">${comment.Author || "Auteur inconnu"}</p>
+          <p class="comment-content">${comment.Content}</p>
+          <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
+        `;
+
+      if (isLoggedIn && userID === comment.OwnerID) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Supprimer";
+        deleteBtn.className = "delete-comment-button";
+
+        deleteBtn.addEventListener("click", async () => {
+          const confirmation = confirm("Es-tu sûr de vouloir supprimer ce commentaire ?");
+          if (!confirmation) return;
+
+          try {
+            const response = await fetch(`/api/delete-comment?id=${comment.ID}`, {
+              method: "DELETE"
+            });
+
+            if (response.ok) {
+              alert("Commentaire supprimé avec succès.");
+              await displayComments();
+            } else {
+              alert("Erreur lors de la suppression du commentaire.");
+            }
+          } catch (error) {
+            console.error("Erreur réseau :", error);
+            alert("Erreur réseau lors de la suppression.");
+          }
+        });
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Modifier";
+        editBtn.className = "edit-comment-button";
+
+        editBtn.addEventListener("click", async () => {
+          const newContent = prompt("Modifier le commentaire :", comment.Content);
+          if (newContent === null || newContent.trim() === "") {
+            alert("Le contenu du commentaire ne peut pas être vide.");
+            return;
+          }
+
+          try {
+            const response = await fetch(`/api/edit-comment`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ id: comment.ID, content: newContent })
+            });
+
+            if (response.ok) {
+              alert("Commentaire modifié avec succès.");
+              await displayComments();
+            } else {
+              alert("Erreur lors de la modification du commentaire.");
+            }
+          } catch (error) {
+            console.error("Erreur réseau :", error);
+            alert("Erreur réseau lors de la modification.");
+          }
+        });
+
+        commentDiv.appendChild(deleteBtn);
+        commentDiv.appendChild(editBtn);
+      }
+
+      commentsContainer.appendChild(commentDiv);
+    });
+  } catch (err) {
+    console.error("BBBErreur lors de la récupération des commentaires :", err);
+    commentsContainer.innerHTML = "<p>Erreur lors du chargement des commentaires.</p>";
+  }
+}
