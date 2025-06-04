@@ -2,25 +2,38 @@ import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
 
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
-let isLoggedIn = document.cookie.includes("session_token=");
-let user
 
-if (isLoggedIn) {
-  fetch("/get-profile", {
-    method: "GET",
-    credentials: "include"
-  })
-    .then(response => {
-      if (response.ok)
-        return response.json()
-      return null;
-    })
-    .then(data => {
-      if (data) {
-        user = data.profile;
+const user = {
+  id: null,
+  username: null,
+  email: null,
+  avatar: null,
+  isLoggedIn: false,
+
+  async getProfile() {
+    if (!document.cookie.includes("session_token="))
+      return;
+    try {
+      const resp = await fetch("/get-profile", {
+        method: "GET",
+        credentials: "include"
+      })
+      if (!resp.ok) {
+        console.error("Erreur lors de la récupération du profil :", resp.statusText);
+        return;
       }
-    })
-}
+      const data = await resp.json();
+      this.id = data.profile.id;
+      this.username = data.profile.username;
+      this.email = data.profile.email;
+      this.avatar = data.profile.profile_picture;
+      this.isLoggedIn = true;
+    } catch (error) {
+      console.error("Erreur lors de la récupération du profil :", error);
+      this.isLoggedIn = false;
+    }
+  }
+};
 
 function setDocumentTitle(title) {
   if (title) {
@@ -75,9 +88,8 @@ async function renderPostDetail(post) {
     updateLikeCount(post.ID);
   });
 
-  if (isLoggedIn) {
+  if (user.isLoggedIn) {
     try {
-
       if (user.id === post.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer le post";
@@ -177,6 +189,7 @@ async function renderPostDetail(post) {
 
 // load post & comments
 document.addEventListener("DOMContentLoaded", async () => {
+  await user.getProfile();
   const postContainer = document.getElementById("dynamic-post");
 
   if (!postContainer) {
@@ -309,7 +322,7 @@ async function displayComments() {
       return;
     }
 
-    if (!isLoggedIn)
+    if (!user.isLoggedIn)
       document.getElementById("add-comment-btn").style.display = "none";
 
     commentsContainer.innerHTML = "";
@@ -323,7 +336,7 @@ async function displayComments() {
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
 
-      if (isLoggedIn && user.id === comment.OwnerID) {
+      if (user.isLoggedIn && user.id === comment.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer";
         deleteBtn.className = "delete-comment-button";
