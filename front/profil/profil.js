@@ -130,14 +130,12 @@ function showPosts() {
     })
         .then(response => response.json())
         .then(posts => {
-            console.log(posts);
             renderPosts(posts);
         })
         .catch(error => {
             console.error("Erreur lors de la récupération des posts :", error);
         });
 }
-
 
 function renderPosts(posts) {
     const postsContainer = document.getElementById("posts-container");

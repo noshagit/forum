@@ -16,11 +16,6 @@ async function fetchPosts() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetchPosts();
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.querySelector(".auth-buttons");
 
   const buttons = [
@@ -95,7 +90,9 @@ function renderPosts(posts) {
 
 
     const likeBtn = reactions.querySelector('.like-btn');
-    let isLiked = false; isLiked = likeStatus(post.ID);
+    let isLiked = false;
+    if (document.cookie.includes("session_token="))
+      isLiked = likeStatus(post.ID);
     if (isLiked)
       likeBtn.classList.add('liked');
 
