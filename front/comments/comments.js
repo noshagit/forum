@@ -3,24 +3,29 @@ import { like, unlike, updateLikeCount, likeStatus } from "/api/like";
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('id');
 let isLoggedIn = document.cookie.includes("session_token=");
+let user
+
+if (isLoggedIn) {
+  fetch("/get-profile", {
+    method: "GET",
+    credentials: "include"
+  })
+    .then(response => {
+      if (response.ok)
+        return response.json()
+      return null;
+    })
+    .then(data => {
+      if (data) {
+        user = data.profile;
+      }
+    })
+}
 
 function setDocumentTitle(title) {
   if (title) {
     document.title = title;
   }
-}
-
-if (postId) {
-  fetch(`/api/post/${postId}`)
-    .then(response => response.json())
-    .then(post => {
-      renderPostDetail(post);
-    })
-    .catch(error => {
-      console.error("Erreur lors du chargement du post :", error);
-    });
-} else {
-  console.error("Aucun ID de post fourni.");
 }
 
 const shareBtn = document.querySelector('.reaction-box img[alt="Share"]');
@@ -72,12 +77,8 @@ async function renderPostDetail(post) {
 
   if (isLoggedIn) {
     try {
-      const profileRes = await fetch("/get-profile");
-      if (!profileRes.ok) throw new Error("Erreur lors de la récupération du profil");
 
-      const user = await profileRes.json();
-
-      if (user.profile.id === post.OwnerID) {
+      if (user.id === post.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer le post";
         deleteBtn.classList.add("delete-button");
@@ -193,20 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!res.ok) throw new Error("Post non trouvé");
 
     const post = await res.json();
-
-    postContainer.innerHTML = "";
-    postContainer.innerHTML = `
-      <div class="title-author">
-        <h1>${post.Title}</h1>
-        <p class="author">${post.Author || "Auteur inconnu"}</p>
-      </div>
-      <p class="content">
-        ${post.Content}
-      </p>
-      <div class="date">Publié le ${new Date(post.CreatedAt).toLocaleDateString("fr-FR")}</div>
-    `;
-    console.log("Post chargé avec succès :", post);
-    updateLikeCount(post.ID);
+    renderPostDetail(post);
 
     const likeBtn = document.querySelector('.like-btn');
     let likeSpan = document.createElement('span');
@@ -321,19 +309,8 @@ async function displayComments() {
       return;
     }
 
-    let userID = null;
-
-    if (isLoggedIn) {
-      const profileRes = await fetch("/get-profile");
-      if (!profileRes.ok) {
-        console.log("Erreur lors de la récupération du profil");
-        return;
-      }
-      const user = await profileRes.json();
-      userID = user.profile.id;
-    } else {
+    if (!isLoggedIn)
       document.getElementById("add-comment-btn").style.display = "none";
-    }
 
     commentsContainer.innerHTML = "";
     comments.forEach(comment => {
@@ -346,7 +323,7 @@ async function displayComments() {
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
 
-      if (isLoggedIn && userID === comment.OwnerID) {
+      if (isLoggedIn && user.id === comment.OwnerID) {
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer";
         deleteBtn.className = "delete-comment-button";
