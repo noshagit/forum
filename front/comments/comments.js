@@ -69,6 +69,7 @@ async function renderPostDetail(post) {
 
   setDocumentTitle(post.Title);
   document.querySelector(".author").addEventListener("click", () => {
+    if (post.Author === "Anonyme") return;
     window.location.href = `/front/profil/profil.html?user=${post.Author}`;
   });
 
@@ -344,7 +345,8 @@ async function displayComments() {
           <div class="comment-content">${comment.Content}</div>
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
-      commentDiv.querySelector(".comment-author").addEventListener("click", () => {
+      commentDiv.querySelector(".comment-author").addEventListener("click", (event) => {
+        if (comment.Author === "Anonyme") return;
         window.location.href = `/front/profil/profil.html?user=${comment.Author}`;
       });
 
