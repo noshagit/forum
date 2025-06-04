@@ -76,6 +76,66 @@ func ListPostHandler(router *mux.Router) {
 	router.HandleFunc("/api/modify-post", ModifyPostHandler).Methods("PUT")
 
 	router.HandleFunc("/api/delete-post", deletePostHandler).Methods("DELETE")
+
+	router.HandleFunc("/user-posts", getUserPosts).Methods("GET")
+}
+
+func getUserPosts(w http.ResponseWriter, r *http.Request) {
+	println("Récupération des posts de l'utilisateur")
+
+	db, err := getDB()
+	if err != nil {
+		log.Println("Database connection error:", err)
+		http.Error(w, "Erreur de connexion à la base de données", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Non connecté", http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := cookie.Value
+	log.Println("Session token:", sessionToken)
+
+	var email string
+	err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", sessionToken).Scan(&email)
+	if err != nil {
+		http.Error(w, "Session invalide", http.StatusUnauthorized)
+		return
+	}
+
+	var userID int
+	err = db.QueryRow("SELECT id FROM users WHERE email = ?", email).Scan(&userID)
+	if err != nil {
+		http.Error(w, "Utilisateur introuvable", http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, owner_id, title, content, likes, themes, created_at FROM posts WHERE owner_id = ? ORDER BY created_at DESC", userID)
+	if err != nil {
+		log.Println("Database query error:", err)
+		http.Error(w, "Erreur lors de la récupération des posts", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		if err := rows.Scan(&post.ID, &post.OwnerID, &post.Title, &post.Content, &post.Likes, &post.Themes, &post.CreatedAt); err != nil {
+			log.Println("Row scan error:", err)
+			continue
+		}
+		posts = append(posts, post)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(posts); err != nil {
+		http.Error(w, "Erreur lors de l'encodage JSON", http.StatusInternalServerError)
+	}
 }
 
 func GetUserIDFromSession(r *http.Request) (int, error) {
