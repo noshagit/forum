@@ -5,7 +5,7 @@ const postId = urlParams.get('id');
 
 const user = {
   id: null,
-  username: null,
+  name: null,
   email: null,
   avatar: null,
   isLoggedIn: false,
@@ -24,7 +24,7 @@ const user = {
       }
       const data = await resp.json();
       this.id = data.profile.id;
-      this.username = data.profile.username;
+      this.name = data.profile.username;
       this.email = data.profile.email;
       this.avatar = data.profile.profile_picture;
       this.isLoggedIn = true;
@@ -32,6 +32,7 @@ const user = {
       console.error("Erreur lors de la récupération du profil :", error);
       this.isLoggedIn = false;
     }
+    console.log(this);
   }
 };
 
@@ -67,6 +68,9 @@ async function renderPostDetail(post) {
   `;
 
   setDocumentTitle(post.Title);
+  document.querySelector(".author").addEventListener("click", () => {
+    window.location.href = `/front/profil/profil.html?user=${post.Author}`;
+  });
 
   const likeBtn = document.querySelector('.like-btn');
   let isLiked = false;
@@ -189,7 +193,9 @@ async function renderPostDetail(post) {
 
 // load post & comments
 document.addEventListener("DOMContentLoaded", async () => {
-  await user.getProfile();
+  if (!user.isLoggedIn || user.name === null)
+    await user.getProfile();
+
   const postContainer = document.getElementById("dynamic-post");
 
   if (!postContainer) {
@@ -222,13 +228,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // load header buttons
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const authContainer = document.querySelector(".auth-buttons");
+
+  if (!user.isLoggedIn || user.name === null)
+    await user.getProfile();
 
   const buttons = [
     { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
     { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
-    { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
+    { text: "Profil", url: `/front/profil/profil.html?user=${user.name}`, id: "profil-button" },
   ];
 
   buttons.forEach(btn => {
@@ -323,7 +332,7 @@ async function displayComments() {
     }
 
     if (!user.isLoggedIn)
-      document.getElementById("add-comment-btn").style.display = "none";
+      document.querySelector(".add-comment-btn").style.display = "none";
 
     commentsContainer.innerHTML = "";
     comments.forEach(comment => {
@@ -335,6 +344,9 @@ async function displayComments() {
           <div class="comment-content">${comment.Content}</div>
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
+      commentDiv.querySelector(".comment-author").addEventListener("click", () => {
+        window.location.href = `/front/profil/profil.html?user=${comment.Author}`;
+      });
 
       if (user.isLoggedIn && user.id === comment.OwnerID) {
         const deleteBtn = document.createElement("button");

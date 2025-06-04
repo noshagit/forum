@@ -277,6 +277,43 @@ func ProfileHandler(router *mux.Router) {
 		log.Println("POST reçu")
 	}).Methods("GET")
 
+	router.HandleFunc("/profile/{username}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		username := vars["username"]
+
+		db, err := sql.Open("sqlite3", "../database/bddforum.db")
+		if err != nil {
+			http.Error(w, "Database connection error", http.StatusInternalServerError)
+			return
+		}
+		defer db.Close()
+
+		var profile struct {
+			Pseudo  string `json:"username"`
+			Email   string `json:"email"`
+			ID      int    `json:"id"`
+			Picture string `json:"profile_picture"`
+		}
+
+		row := db.QueryRow("SELECT id, username, email, profile_picture FROM users WHERE username = ?", username)
+		err = row.Scan(&profile.ID, &profile.Pseudo, &profile.Email, &profile.Picture)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "Profile not found", http.StatusNotFound)
+			} else {
+				log.Println("DB scan error:", err)
+				http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]any{
+			"success": true,
+			"profile": profile,
+		})
+	}).Methods("GET")
+
 	router.HandleFunc("/update-profile", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
