@@ -457,12 +457,12 @@ func DetailedPostHandler(router *mux.Router) {
 		}
 		defer db.Close()
 
-		query := ` SELECT p.id, p.title, p.content, p.themes, p.likes, p.created_at, u.username FROM posts p LEFT JOIN users u ON p.owner_id = u.id WHERE p.id = ?`
+		query := ` SELECT p.id, p.owner_id, p.title, p.content, p.themes, p.likes, p.created_at, u.username FROM posts p LEFT JOIN users u ON p.owner_id = u.id WHERE p.id = ?`
 
 		row := db.QueryRow(query, id)
 
 		var post Post
-		err = row.Scan(&post.ID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt, &post.Author)
+		err = row.Scan(&post.ID, &post.OwnerID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt, &post.Author)
 		fmt.Println(post, err)
 		if err != nil {
 			if err == sql.ErrNoRows {
