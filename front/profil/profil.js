@@ -174,28 +174,20 @@ function renderPosts(posts) {
         showMoreBtn.addEventListener("click", () => {
             window.location.href = `/front/comments/comments.html?id=${post.ID}`;
         });
-
-        /*const likeBtn = reactions.querySelector('.like-btn');
-        let isLiked = false;
-        isLiked = likeStatus(post.ID);
-        if (isLiked)
-            likeBtn.classList.add('liked');
-
-        likeBtn.addEventListener('click', async () => {
-            if (isLiked) {
-                await unlike(post.ID);
-                isLiked = false;
-                likeBtn.classList.remove('liked');
-            } else {
-                await like(post.ID);
-                isLiked = true;
-                likeBtn.classList.add('liked');
-            }
-            updateLikeCount(post.ID);
-        });
-
-        updateLikeCount(post.ID);*/
     });
 }
 
+function previewProfilePicture(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.querySelector(".profile-pic").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    updateProfile();
+}
+
 document.querySelector(".cta").addEventListener("click", updateProfile);
+document.getElementById("profilePicture").addEventListener("change", previewProfilePicture);

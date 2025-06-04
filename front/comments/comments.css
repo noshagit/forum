@@ -85,13 +85,15 @@ header button {
 
 .comment-block {
   display: flex;
-  align-items: center;
-  gap: 15px;
+  align-items: flex-start;
+  gap:10px;
   background-color: #66C586;
   padding: 10px;
   margin: 10px 0;
   border-radius: 15px;
   font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 11px;
+  flex-direction: column;
 }
 
 .comment-block .avatar {
@@ -222,4 +224,41 @@ header button {
 
 #comment-form.hidden {
   display: none;
+}
+
+.delete-comment-button {
+  background-color: #75563D;
+  color: #EBF2FA;
+  padding: 5px 10px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 10px;
+}
+
+.edit-comment-button {
+  background-color: #75563D;
+  color: #EBF2FA;
+  padding: 5px 10px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 10px;
+}
+
+.add-comment-btn {
+  background-color: #75563D;
+  color: #EBF2FA;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 10px;
+  margin: 20px 40px;
 }

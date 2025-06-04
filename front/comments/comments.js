@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // add a comment
 document.addEventListener("DOMContentLoaded", () => {
-  const addCommentBtn = document.getElementById("add-comment-btn");
+  const addCommentBtn = document.querySelector(".add-comment-btn");
   const commentForm = document.getElementById("comment-form");
 
   addCommentBtn.addEventListener("click", () => {
@@ -341,8 +341,8 @@ async function displayComments() {
       commentDiv.className = "comment-block";
       commentDiv.innerHTML = `
           <img class="avatar" src="/api/get_avatar/${comment.Author}">
-          <p class="comment-author">${comment.Author || "Auteur inconnu"}</p>
-          <p class="comment-content">${comment.Content}</p>
+          <div class="comment-author">${comment.Author || "Auteur inconnu"}</div>
+          <div class="comment-content">${comment.Content}</div>
           <div class="comment-date">Publié le ${new Date(comment.CreatedAt).toLocaleDateString("fr-FR")}</div>
         `;
 
