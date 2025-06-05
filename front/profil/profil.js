@@ -133,7 +133,7 @@ function updateProfile() {
     })
         .then(response => {
             if (response.ok) {
-                location.reload();
+                location.href = `/front/profil/profil.html?user=${username}`;
             } else {
                 return response.text().then(text => { throw new Error(text) });
             }
