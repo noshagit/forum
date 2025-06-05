@@ -67,3 +67,12 @@ Deux choix s'offrent à vous :
 
     - Sur votre navigateur, entrez :
       "*http://20.117.108.238:8080*"
+## Membre du projet
+
+Nous faisons partis du groupe 5, dont les membres sont :
+
+- Quentin LUCIEN-REINETTE
+- Nathaël VIGNE
+- Ilian BEN HAMOU
+- Yousri BERRICHE
+- Saïd ZEROUAL
