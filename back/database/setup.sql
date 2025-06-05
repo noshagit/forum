@@ -47,3 +47,10 @@ CREATE TABLE post_likes (
     FOREIGN KEY (owner_id) REFERENCES users(id),
     UNIQUE (post_id, owner_id)
 );
+
+
+CREATE TABLE sessions (
+    token VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    created_at VARCHAR(255) DEFAULT CURRENT_TIMESTAMP,
+);
