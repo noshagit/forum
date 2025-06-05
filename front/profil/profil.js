@@ -39,6 +39,7 @@ function loadProfile() {
                 alert("Erreur lors de la récupération des données.");
             });
     } else {
+        document.getElementById("leave").style.display = "none";
         document.querySelectorAll(".edit").forEach(el => { el.style.display = "none"; })
         document.querySelectorAll(".field").forEach(el => { el.disabled = true; })
     }
