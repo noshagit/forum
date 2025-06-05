@@ -13,7 +13,7 @@ function getCookie(name) {
 function loadProfile() {
     const sessionToken = getCookie("session_token");
 
-    /*if (sessionToken) {
+    if (sessionToken) {
         fetch(`/get-profile`, {
             method: "GET"
         })
@@ -28,6 +28,7 @@ function loadProfile() {
                     if (data.profile.username !== username) {
                         document.querySelectorAll(".edit").forEach(el => { el.style.display = "none"; })
                         document.querySelectorAll(".field").forEach(el => { el.disabled = true; })
+
                     }
                 } else {
                     alert("Erreur lors de la récupération des informations du profil.");
@@ -38,9 +39,9 @@ function loadProfile() {
                 alert("Erreur lors de la récupération des données.");
             });
     } else {
-        alert("Vous n'êtes pas connecté.");
-        window.location.href = "/front/login/login.html";
-    }*/
+        document.querySelectorAll(".edit").forEach(el => { el.style.display = "none"; })
+        document.querySelectorAll(".field").forEach(el => { el.disabled = true; })
+    }
 
     fetch(`/profile/${username}`, {
         method: "GET",
