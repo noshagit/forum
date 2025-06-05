@@ -49,6 +49,6 @@ func main() {
 	handlers.ProfileHandler(router)
 	handlers.ChangePasswordHandlers(router)
 
-	fmt.Println("Server is launch on port 8080 : http://localhost:8080")
+	fmt.Println("Server is open on port 8080 : http://localhost:8080")
 	http.ListenAndServe(":8080", router)
 }

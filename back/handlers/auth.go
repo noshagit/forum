@@ -60,14 +60,12 @@ func LoginHandler(router *mux.Router) {
 		err := json.NewDecoder(r.Body).Decode(&credentials)
 		if err != nil {
 			http.Error(w, "JSON decoding error", http.StatusBadRequest)
-			log.Println("JSON decoding error:", err)
 			return
 		}
 
 		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
-			log.Println("Database connection error:", err)
 			return
 		}
 		defer db.Close()
@@ -80,7 +78,6 @@ func LoginHandler(router *mux.Router) {
 				http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 			} else {
 				http.Error(w, "Database query error", http.StatusInternalServerError)
-				log.Println("Database query error:", err)
 			}
 			return
 		}
@@ -91,7 +88,6 @@ func LoginHandler(router *mux.Router) {
 			_, err := db.Exec("INSERT INTO sessions (token, email) VALUES (?, ?)", sessionToken, credentials.Email)
 			if err != nil {
 				http.Error(w, "Error creating session", http.StatusInternalServerError)
-				log.Println("Session insertion error:", err)
 				return
 			}
 
@@ -139,7 +135,6 @@ func RegisterHandler(router *mux.Router) {
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
 			http.Error(w, "JSON decoding error", http.StatusBadRequest)
-			log.Println("JSON decoding error:", err)
 			return
 		}
 
@@ -175,7 +170,6 @@ func RegisterHandler(router *mux.Router) {
 		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
-			log.Println("Database connection error:", err)
 			return
 		}
 		defer db.Close()
@@ -183,7 +177,6 @@ func RegisterHandler(router *mux.Router) {
 		var exists int
 		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE email = ?", user.Email).Scan(&exists)
 		if err != nil {
-			log.Println("Database query error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
@@ -194,7 +187,6 @@ func RegisterHandler(router *mux.Router) {
 
 		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE username = ?", user.Pseudo).Scan(&exists)
 		if err != nil {
-			log.Println("Database query error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
@@ -205,7 +197,6 @@ func RegisterHandler(router *mux.Router) {
 
 		stmt, err := db.Prepare("INSERT INTO users (username, email, password, profile_picture) VALUES (?, ?, ?, ?)")
 		if err != nil {
-			log.Println("Database preparation error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
@@ -214,7 +205,6 @@ func RegisterHandler(router *mux.Router) {
 		defaultProfilePicture := "../pp/default.png"
 		_, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword, defaultProfilePicture)
 		if err != nil {
-			log.Println("Database insertion error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
 		}
@@ -223,7 +213,6 @@ func RegisterHandler(router *mux.Router) {
 
 		_, err = db.Exec("INSERT INTO sessions (token, email) VALUES (?, ?)", sessionToken, user.Email)
 		if err != nil {
-			log.Println("Session insertion error:", err)
 			http.Error(w, "Error creating session", http.StatusInternalServerError)
 			return
 		}
@@ -237,7 +226,6 @@ func RegisterHandler(router *mux.Router) {
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Registration successful"))
-		log.Println("POST reçu")
 	}).Methods("POST")
 }
 
@@ -301,21 +289,16 @@ func ProfileHandler(router *mux.Router) {
 			if err == sql.ErrNoRows {
 				http.Error(w, "No profile found for user", http.StatusNotFound)
 			} else {
-				log.Println("DB scan error:", err)
 				http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
 			}
 			return
 		}
-
-		log.Println("Email from session:", email)
-		log.Println("Username from session:", profile.Pseudo)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
 			"profile": profile,
 		})
-		log.Println("POST reçu")
 	}).Methods("GET")
 
 	router.HandleFunc("/profile/{username}", func(w http.ResponseWriter, r *http.Request) {
@@ -342,7 +325,6 @@ func ProfileHandler(router *mux.Router) {
 			if err == sql.ErrNoRows {
 				http.Error(w, "Profile not found", http.StatusNotFound)
 			} else {
-				log.Println("DB scan error:", err)
 				http.Error(w, "Error retrieving profile information", http.StatusInternalServerError)
 			}
 			return
@@ -569,7 +551,6 @@ func ProfileHandler(router *mux.Router) {
 				_, err := db.Exec("DELETE FROM sessions WHERE token = ?", cookie.Value)
 				if err != nil {
 					http.Error(w, "Error deleting session", http.StatusInternalServerError)
-					log.Println("Error deleting session:", err)
 				}
 				db.Close()
 			}

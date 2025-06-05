@@ -1,18 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 body {
   margin: 0;
-  font-family: 'Press Start 2P', cursive, sans-serif;
-  background-color: #66C586;
-  color: #22392A;
+  font-family: "Press Start 2P", cursive, sans-serif;
+  background-color: #66c586;
+  color: #22392a;
 }
 
 header {
-  background-color: #22392A;
+  background-color: #22392a;
   display: flex;
   justify-content: space-between;
   padding: 10px 20px;
   align-items: center;
+  height: 51px;
 }
 
 .left-buttons {
@@ -21,17 +22,17 @@ header {
 }
 
 header button {
-  background-color: #EBF2FA;
+  background-color: #e6e6e6;
   border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-size: 16px;
+  padding: 6px 12px;
+  border-radius: 10px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  height: 25px;
+  font-family: "Press Start 2P", cursive, sans-serif;
 }
 
 .main-post {
-  background-color: #F8E9E7;
+  background-color: #f8e9e7;
   margin: 40px;
   padding: 30px;
   border-radius: 15px;
@@ -56,9 +57,34 @@ header button {
   text-decoration: underline;
 }
 
+.author:hover {
+  transition: transform 0.2s;
+  transform: scale(1.15);
+}
+
+.comment-author {
+  cursor: pointer;
+}
+
+.comment-author:hover {
+  transition: transform 0.2s;
+  transform: scale(1.15);
+}
+
 .content {
   font-size: 18px;
   line-height: 1.5;
+}
+
+#logo {
+  background-color: #e6e6e6;
+  border: none;
+  font-family: "Press Start 2P", cursive;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  height: 28px;
+  font-size: medium;
 }
 
 .reaction-buttons {
@@ -68,7 +94,7 @@ header button {
 }
 
 .reaction-box {
-  background-color: #75563D;
+  background-color: #75563d;
   padding: 10px;
   border-radius: 12px;
   display: inline-flex;
@@ -88,12 +114,12 @@ header button {
 .comment-block {
   display: flex;
   align-items: flex-start;
-  gap:10px;
-  background-color: #66C586;
+  gap: 10px;
+  background-color: #66c586;
   padding: 10px;
   margin: 10px 0;
   border-radius: 15px;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 11px;
   flex-direction: column;
 }
@@ -106,7 +132,7 @@ header button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #CCC;
+  background-color: #ccc;
 }
 
 .comment-block .text {
@@ -124,20 +150,20 @@ header button {
 }
 
 .delete-button {
-  background-color: #75563D;
-  color: #EBF2FA;
+  background-color: #75563d;
+  color: #ebf2fa;
   padding: 10px 20px;
   font-weight: bold;
   border: none;
   border-radius: 12px;
   margin-top: 20px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 16px;
   transition: background-color 0.2s;
 }
 .delete-button:hover {
-  background-color: #22392A;
+  background-color: #22392a;
 }
 
 .reaction-box {
@@ -160,11 +186,11 @@ header button {
   max-width: 200px;
   height: 60px;
   text-align: center;
-  background-color: #75563D;
+  background-color: #75563d;
   border-radius: 12px;
   font-size: 2.2em;
   cursor: pointer;
-} 
+}
 
 #edit-post-modal.modal {
   display: flex;
@@ -177,14 +203,12 @@ header button {
   display: none;
 }
 
-
-
 #edit-post-modal .modal-content {
-  background-color: #F8E9E7;
+  background-color: #f8e9e7;
   padding: 30px;
   border-radius: 20px;
   width: 90%;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   position: relative;
   animation: fadeIn 0.3s ease-out;
 }
@@ -195,7 +219,7 @@ header button {
   right: 15px;
   font-size: 18px;
   font-weight: bold;
-  color: #22392A;
+  color: #22392a;
   cursor: pointer;
   background: none;
   border: none;
@@ -210,10 +234,10 @@ header button {
   border-radius: 10px;
   padding: 10px;
   margin: 10px 0;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 12px;
   resize: vertical;
-  color: #22392A;
+  color: #22392a;
 }
 
 #edit-post-modal select {
@@ -221,9 +245,9 @@ header button {
 }
 
 #edit-post-modal button[type="submit"] {
-  background-color: #75563D;
-  color: #EBF2FA;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  background-color: #75563d;
+  color: #ebf2fa;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 12px;
   border: none;
   padding: 10px 20px;
@@ -235,12 +259,18 @@ header button {
 }
 
 #edit-post-modal button[type="submit"]:hover {
-  background-color: #22392A;
+  background-color: #22392a;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px);}
-  to { opacity: 1; transform: translateY(0);}
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #comment-form.hidden {
@@ -248,44 +278,44 @@ header button {
 }
 
 .delete-comment-button {
-  background-color: #75563D;
-  color: #EBF2FA;
+  background-color: #75563d;
+  color: #ebf2fa;
   padding: 5px 10px;
   font-weight: bold;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 10px;
 }
 
 .edit-comment-button {
-  background-color: #75563D;
-  color: #EBF2FA;
+  background-color: #75563d;
+  color: #ebf2fa;
   padding: 5px 10px;
   font-weight: bold;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 10px;
 }
 
 .add-comment-btn {
-  background-color: #75563D;
-  color: #EBF2FA;
+  background-color: #75563d;
+  color: #ebf2fa;
   padding: 10px 20px;
   font-weight: bold;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 10px;
   margin: 20px 40px;
 }
 
 #comment-form {
-  background-color: #F8E9E7;
+  background-color: #f8e9e7;
   border-radius: 15px;
   padding: 20px;
   margin: 20px 40px;
@@ -307,25 +337,24 @@ header button {
   border: none;
   border-radius: 10px;
   padding: 10px;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 12px;
   resize: vertical;
 }
 
 #comment-form button[type="submit"] {
-  background-color: #75563D;
-  color: #EBF2FA;
+  background-color: #75563d;
+  color: #ebf2fa;
   border: none;
   border-radius: 12px;
   padding: 10px 20px;
   font-weight: bold;
-  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-family: "Press Start 2P", cursive, sans-serif;
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 #comment-form button[type="submit"]:hover {
-  background-color: #22392A;
+  background-color: #22392a;
 }
-

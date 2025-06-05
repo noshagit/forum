@@ -61,7 +61,7 @@ async function likeStatus(postId) {
             credentials: 'include'
         });
         const data = await res.json();
-        return data.liked;
+        return data.isLiked;
     } catch (err) {
         console.error('Failed to check like status:', err);
         return false;

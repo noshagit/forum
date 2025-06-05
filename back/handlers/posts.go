@@ -81,7 +81,6 @@ func ListPostHandler(router *mux.Router) {
 }
 
 func getUserPosts(w http.ResponseWriter, r *http.Request) {
-	println("Récupération des posts de l'utilisateur")
 
 	db, err := getDB()
 	if err != nil {
@@ -517,7 +516,6 @@ func DetailedPostHandler(router *mux.Router) {
 
 		var post Post
 		err = row.Scan(&post.ID, &post.OwnerID, &post.Title, &post.Content, &post.Themes, &post.Likes, &post.CreatedAt, &post.Author)
-		fmt.Println(post, err)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "Post non trouvé", http.StatusNotFound)

@@ -176,7 +176,6 @@ func deleteCommentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ModifyComment(id int, newContent string) error {
-	log.Printf("Modification en cours pour ID=%d, contenu='%s'", id, newContent)
 	db, err := getDB()
 	if err != nil {
 		return fmt.Errorf("database connection error: %v", err)

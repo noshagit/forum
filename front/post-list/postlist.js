@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       .catch(error => {
         console.error("Erreur:", error);
       });
+
+  }else {
+    const openBtn = document.getElementById("create-post-button");
+    openBtn.style.display = "none";
   }
 
   const buttons = [
@@ -77,7 +81,7 @@ function renderPosts(posts) {
   const postsContainer = document.getElementById("posts-container");
   postsContainer.innerHTML = "";
 
-  posts.forEach(post => {
+  posts.forEach( async post => {
     const wrapper = document.createElement("div");
     wrapper.className = "post-container";
 
@@ -113,23 +117,17 @@ function renderPosts(posts) {
     const likeBtn = reactions.querySelector('.like-btn');
     let isLiked = false;
     if (document.cookie.includes("session_token="))
-      isLiked = likeStatus(post.ID);
-    if (isLiked)
-      likeBtn.classList.add('liked');
+      isLiked = await likeStatus(post.ID);
 
     likeBtn.addEventListener('click', async () => {
       if (isLiked) {
         await unlike(post.ID);
         isLiked = false;
-        likeBtn.classList.remove('liked');
       } else {
         await like(post.ID);
         isLiked = true;
-        likeBtn.classList.add('liked');
       }
-      updateLikeCount(post.ID);
     });
-
     updateLikeCount(post.ID);
   });
 }
@@ -156,8 +154,6 @@ function applyFiltersAndSort() {
     const matchCategory = selectedCategory === "" || post.Themes === selectedCategory;
     return matchSearch && matchCategory;
   });
-
-  console.log(filtered.map(p => ({ id: p.id, likes: p.Likes || p.likes })));
 
   if (selectedSort === "date") {
     filtered.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
@@ -201,8 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
         themes: formData.get("themes")
       };
 
-      console.log(postData);
-
       const response = await fetch("/api/add-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -227,4 +221,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-

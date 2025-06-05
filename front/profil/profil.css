@@ -32,14 +32,14 @@ header {
 }
 
 .logo {
-  background: #ebf2fa;
-  border-radius: 20px;
-  padding: 5px 15px;
-  font-weight: bold;
+  background-color: #e6e6e6;
+  border: none;
+  font-family: "Press Start 2P", cursive;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
   color: #000000;
   text-decoration: none;
-  font-family: "Press Start 2P", cursive;
-  font-size: 10px;
 }
 
 #leave {
@@ -139,6 +139,9 @@ input.field::placeholder {
   right: 20px;
   bottom: 50px;
   text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 1;
 }
 
 .delete-text {
@@ -256,7 +259,6 @@ input.field::placeholder {
   gap: 12px;
   margin-left: 15px;
   margin-top: 10px;
-  cursor: pointer;
 }
 
 .reaction-box {
@@ -273,8 +275,4 @@ input.field::placeholder {
   width: 20px;
   height: 20px;
   transition: transform 0.2s;
-}
-
-.reaction-box img:hover {
-  transform: scale(1.2);
 }

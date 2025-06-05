@@ -32,7 +32,6 @@ const user = {
       console.error("Erreur lors de la récupération du profil :", error);
       this.isLoggedIn = false;
     }
-    console.log(this);
   }
 };
 
@@ -316,7 +315,6 @@ async function displayComments() {
   try {
     let res = await fetch(`/api/comments/${postId}`);
     if (!res.ok) {
-      console.log("Erreur lors de la récupération des commentaires");
       return;
     }
     let comments = await res.json();
