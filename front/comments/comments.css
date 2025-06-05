@@ -152,12 +152,32 @@ header button {
 }
 
 #edit-post-button-container {
-  text-align: center;
-  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 120px;
+}
+
+#edit-post-button-container .edit-post-btn {
+  background-color: #75563D;
+  color: #EBF2FA;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  margin-left: 10px;
+}
+
+#edit-post-button-container .edit-post-btn:hover {
+  background-color: #22392A;
 }
 
 #edit-post-modal.modal {
-  background-color: rgba(34, 57, 42, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,10 +192,9 @@ header button {
   background-color: #F8E9E7;
   padding: 30px;
   border-radius: 20px;
-  width: 90%;
-  max-width: 450px;
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
-  font-family: 'Press Start 2P', cursive;
+  width: 90%;   
+  box-shadow: 0 8px 12px rgba(34, 57, 42, 0.08);
+  font-family: 'Press Start 2P', cursive, sans-serif;
   position: relative;
   animation: fadeIn 0.3s ease-out;
 }
@@ -186,7 +205,7 @@ header button {
   right: 15px;
   font-size: 18px;
   font-weight: bold;
-  color: #000;
+  color: #22392A;
   cursor: pointer;
   background: none;
   border: none;
@@ -201,25 +220,32 @@ header button {
   border-radius: 10px;
   padding: 10px;
   margin: 10px 0;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 12px;
   resize: vertical;
+  color: #22392A;
 }
 
 #edit-post-modal select {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 #edit-post-modal button[type="submit"] {
   background-color: #75563D;
-  color: white;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
+  color: #EBF2FA;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 12px;
   border: none;
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   margin-top: 10px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+#edit-post-modal button[type="submit"]:hover {
+  background-color: #22392A;
 }
 
 @keyframes fadeIn {
@@ -267,3 +293,50 @@ header button {
   font-size: 10px;
   margin: 20px 40px;
 }
+
+#comment-form {
+  background-color: #F8E9E7;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 40px;
+  box-shadow: 0 4px 8px rgba(34, 57, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 12px;
+}
+
+#comment-form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+#comment-form input[type="text"],
+#comment-form textarea {
+  width: 100%;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 12px;
+  resize: vertical;
+}
+
+#comment-form button[type="submit"] {
+  background-color: #75563D;
+  color: #EBF2FA;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-family: 'Press Start 2P', cursive, sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#comment-form button[type="submit"]:hover {
+  background-color: #22392A;
+}
+

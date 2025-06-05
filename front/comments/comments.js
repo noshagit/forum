@@ -110,7 +110,6 @@ async function renderPostDetail(post) {
             });
 
             if (response.ok) {
-              alert("Post supprimé avec succès.");
               window.location.href = "/front/post-list/postlist.html";
             } else {
               alert("Erreur lors de la suppression du post.");
@@ -128,11 +127,9 @@ async function renderPostDetail(post) {
         editBtn.id = ("edit-button");
         document.getElementById("edit-post-button-container").appendChild(editBtn);
 
-        // Prépare la modal
         const modal = document.getElementById("edit-post-modal");
         const closeModal = modal.querySelector(".close-edit-button");
 
-        // Bouton ouvrir la pop-up
         editBtn.addEventListener("click", () => {
           document.getElementById("edit-title").value = post.Title;
           document.getElementById("edit-content").value = post.Content;
@@ -140,12 +137,10 @@ async function renderPostDetail(post) {
           modal.classList.remove("hidden");
         });
 
-        // Bouton fermer la pop-up
         closeModal.addEventListener("click", () => {
           modal.classList.add("hidden");
         });
 
-        // Soumission du formulaire de modification
         const editForm = document.getElementById("edit-post-form");
         editForm.addEventListener("submit", async (e) => {
           e.preventDefault();
@@ -167,7 +162,6 @@ async function renderPostDetail(post) {
             });
 
             if (res.ok) {
-              alert("Post modifié avec succès !");
               modal.classList.add("hidden");
               location.reload();
             } else {
@@ -269,7 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// add a comment
+
 document.addEventListener("DOMContentLoaded", () => {
   const addCommentBtn = document.querySelector(".add-comment-btn");
   const commentForm = document.getElementById("comment-form");
@@ -297,7 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (res.ok) {
-        alert("Commentaire ajouté avec succès !");
         commentForm.reset();
         commentForm.classList.add("hidden");
 
@@ -365,7 +358,6 @@ async function displayComments() {
             });
 
             if (response.ok) {
-              alert("Commentaire supprimé avec succès.");
               await displayComments();
             } else {
               alert("Erreur lors de la suppression du commentaire.");
@@ -397,7 +389,6 @@ async function displayComments() {
             });
 
             if (response.ok) {
-              alert("Commentaire modifié avec succès.");
               await displayComments();
             } else {
               alert("Erreur lors de la modification du commentaire.");

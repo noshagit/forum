@@ -176,8 +176,7 @@ body {
     text-decoration: none;
     color: black;
   }
-  #create-post-button,
-  #create-post-button:focus {
+  #create-post-button {
     background-color: #75563D;
     color: #ffffff;
     font-family: 'Press Start 2P', cursive;
@@ -192,6 +191,23 @@ body {
     transition: background 0.2s;
   }
   #create-post-button:hover {
+    background-color: #dbe7f3;
+  }
+
+  #create-category {
+    background-color: #75563D;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    width: 250px;
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    margin: 10px 0;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: background 0.2s;
+  }
+  #create-category:hover {
     background-color: #dbe7f3;
   }
 

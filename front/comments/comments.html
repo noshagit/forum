@@ -28,22 +28,10 @@
         <div class="reaction-box">
           <img src="/front/images/share.png" alt="Share" />
         </div>
+
+        <div id="edit-post-button-container"></div>
+
       </section>
-
-      <button class="add-comment-btn" >Ajouter un commentaire</button>
-
-      <form id="comment-form" class="hidden">
-        <textarea
-          id="comment-content"
-          placeholder="Écrire un commentaire..."
-          required
-        ></textarea>
-        <button type="submit">Envoyer</button>
-      </form>
-
-      <section id="comments-container" class="comments"></section>
-
-      <div id="edit-post-button-container"></div>
 
       <div id="edit-post-modal" class="modal hidden">
         <div class="modal-content">
@@ -80,6 +68,19 @@
           </form>
         </div>
       </div>
+
+      <button class="add-comment-btn" >Ajouter un commentaire</button>
+
+      <form id="comment-form" class="hidden">
+        <textarea
+          id="comment-content"
+          placeholder="Écrire un commentaire..."
+          required
+        ></textarea>
+        <button type="submit">Envoyer</button>
+      </form>
+
+      <section id="comments-container" class="comments"></section>
     </main>
 
     <script type="module" src="comments.js"></script>

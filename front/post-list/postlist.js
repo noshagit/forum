@@ -212,7 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       if (response.ok) {
-        alert("Post créé !");
         form.reset();
         modal.classList.add("hidden");
 
