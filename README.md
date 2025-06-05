@@ -1,63 +1,69 @@
 # Forum
 
-A simple web-based forum application with user authentication, posting, commenting, and liking features. The project is split into a Go backend and a static frontend.
+Une application de forum web simple avec authentification des utilisateurs, publication, commentaires et fonctionnalités de "like". Le projet est divisé en un backend Go et un frontend statique.
 
-## Features
-- User registration and authentication
-- Create, view, and delete posts
-- Comment on posts
-- Like posts
-- User profile management
+## Fonctionnalités
 
-## Project Structure
+- Inscription et authentification des utilisateurs
+- Création, visualisation et suppression de publications
+- Commenter les publications
+- Aimer les publications
+- Gestion du profil utilisateur
+
+## Structure du projet
+
 ```
 forum/
-├── back/           # Go backend (API, handlers, database)
-│   ├── api/        # API endpoints (JS)
-│   ├── database/   # SQLite DB and setup scripts
-│   ├── handlers/   # Go HTTP handlers
-│   └── main/       # Main Go entry point
+├── back/           # Backend Go (API, gestionnaires, base de données)
+│   ├── api/        # Points de terminaison API (JS)
+│   ├── database/   # Base SQLite et scripts d'installation
+│   ├── handlers/   # Gestionnaires HTTP Go
+│   └── main/       # Point d'entrée principal Go
 ├── front/          # Frontend (HTML, CSS, JS)
-│   ├── comments/   # Comments UI
-│   ├── images/     # Static images
-│   ├── login/      # Login UI
-│   ├── password/   # Password reset UI
-│   ├── post-list/  # Post list UI
-│   ├── pp/         # Profile pictures
-│   ├── profil/     # Profile UI
-│   └── register/   # Registration UI
-└── README.md       # Project documentation
+│   ├── comments/   # Interface des commentaires
+│   ├── images/     # Images statiques
+│   ├── login/      # Interface de connexion
+│   ├── password/   # Interface de réinitialisation du mot de passe
+│   ├── post-list/  # Interface de liste des publications
+│   ├── pp/         # Photos de profil
+│   ├── profil/     # Interface de profil
+│   └── register/   # Interface d'inscription
+└── README.md       # Documentation du projet
 ```
 
-## Getting Started
+## Pour commencer
 
-### Prerequisites
+### Prérequis
+
 - Go (1.23.0)
-- Node.js (for frontend development, optional)
 - SQLite3
+- CGO (compatibilité golang et sqlite)
+- Git
 
-### Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd back
-   ```
-2. Install Go dependencies:
-   ```bash
-   go mod tidy
-   ```
-3. Run the backend server:
-   ```bash
-   cd main
-   go run main.go
-   ```
+## Utilisation
 
-## Usage
-- Register a new account or log in.
-- Create, view, and interact with posts.
-- Manage your profile and password.
+- Inscrivez-vous ou connectez-vous.
+- Créez, consultez et interagissez avec les publications.
+- Gérez votre profil et votre mot de passe.
 
-## License
-MIT
----
-Feel free to contribute or open issues for improvements!
+### Accès au site
 
+Deux choix s'offrent à vous :
+
+1.  Lancer le serveur en local :
+
+    - Accédez au répertoire principal :
+      ```bash
+      cd back/main
+      ```
+    - Lancez le serveur :
+      ```bash
+      go run main.go
+      ```
+    - Sur votre navigateur, entrez :
+      "_http://localhost:8080_"
+
+2.  Accéder au site hébergé sur Azur :
+
+    - Sur votre navigateur, entrez :
+      "*http://20.117.108.238:8080*"
