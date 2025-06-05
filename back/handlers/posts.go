@@ -91,19 +91,10 @@ func getUserPosts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	/*cookie, err := r.Cookie("session_token")
-	if err != nil {
-		http.Error(w, "Non connecté", http.StatusUnauthorized)
-		return
-	}
-
-	sessionToken := cookie.Value
-	log.Println("Session token:", sessionToken)*/
 	vars := mux.Vars(r)
 	username := vars["username"]
 
 	var email string
-	//err = db.QueryRow("SELECT email FROM sessions WHERE token = ?", sessionToken).Scan(&email)
 	err = db.QueryRow("SELECT email FROM users WHERE username = ?", username).Scan(&email)
 	if err != nil {
 		http.Error(w, "Session invalide", http.StatusUnauthorized)
