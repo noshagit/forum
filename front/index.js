@@ -1,10 +1,32 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const authContainer = document.querySelector(".auth-buttons");
+  const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
+
+  let username
+  if (sessionCookie) {
+    await fetch("/get-profile", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Erreur lors de la récupération du profil");
+        }
+      })
+      .then(data => {
+        username = data.profile.username;
+      })
+      .catch(error => {
+        console.error("Erreur:", error);
+      });
+  }
 
   const buttons = [
     { text: "Connexion", url: "/front/login/login.html", id: "connexion-button" },
     { text: "Inscription", url: "/front/register/register.html", id: "inscription-button" },
-    { text: "Profil", url: "/front/profil/profil.html", id: "profil-button" },
+    { text: "Profil", url: `/front/profil/profil.html?user=${username}`, id: "profil-button" },
   ];
 
   buttons.forEach(btn => {
@@ -18,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     authContainer.appendChild(button);
   });
 
-  const sessionCookie = document.cookie.split("; ").find(row => row.startsWith("session_token="));
 
   if (sessionCookie) {
     document.getElementById("connexion-button").style.display = "none";
