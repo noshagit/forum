@@ -32,7 +32,6 @@ document.getElementById("signup-form").addEventListener("submit", async function
             let errorText = await response.text();
             throw new Error(errorText);
         } else {
-            alert("Inscription réussie !");
             window.location.href = "/";
         }
 

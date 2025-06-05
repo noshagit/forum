@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Mot de passe modifié avec succès !");
             window.location.href = "/front/profil/profil.html";
         } else {
             alert(`Erreur : ${data.error}`);

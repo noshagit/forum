@@ -76,7 +76,6 @@ function logout() {
         method: "POST"
     })
         .then(() => {
-            alert("Déconnexion réussie !");
             window.location.href = "/";
         })
         .catch(error => {
@@ -98,7 +97,6 @@ function deleteProfile() {
     })
         .then(response => {
             if (response.ok) {
-                alert("Compte supprimé avec succès !");
                 window.location.href = "/";
             } else {
                 alert("Erreur lors de la suppression du compte.");
@@ -135,7 +133,6 @@ function updateProfile() {
     })
         .then(response => {
             if (response.ok) {
-                alert("Profil mis à jour avec succès !");
                 location.reload();
             } else {
                 return response.text().then(text => { throw new Error(text) });
