@@ -123,7 +123,7 @@ async function renderPostDetail(post) {
         postContainer.appendChild(deleteBtn);
 
         const editBtn = document.createElement("button");
-        editBtn.textContent = "Modifier le post";
+        editBtn.textContent = "✏️";
         editBtn.id = ("edit-button");
         document.getElementById("edit-post-button-container").appendChild(editBtn);
 

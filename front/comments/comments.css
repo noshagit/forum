@@ -50,6 +50,7 @@ header button {
 }
 
 .author {
+  cursor: pointer;
   font-size: 16px;
   font-weight: bold;
   text-decoration: underline;
@@ -151,31 +152,19 @@ header button {
   transform: scale(1.15);
 }
 
-#edit-post-button-container {
+#edit-button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   flex: 1;
-  min-width: 120px;
-}
-
-#edit-post-button-container .edit-post-btn {
+  max-width: 200px;
+  height: 60px;
+  text-align: center;
   background-color: #75563D;
-  color: #EBF2FA;
-  padding: 10px 20px;
-  font-weight: bold;
-  border: none;
   border-radius: 12px;
+  font-size: 2.2em;
   cursor: pointer;
-  font-family: 'Press Start 2P', cursive, sans-serif;
-  font-size: 14px;
-  transition: background-color 0.2s;
-  margin-left: 10px;
-}
-
-#edit-post-button-container .edit-post-btn:hover {
-  background-color: #22392A;
-}
+} 
 
 #edit-post-modal.modal {
   display: flex;
@@ -188,12 +177,13 @@ header button {
   display: none;
 }
 
+
+
 #edit-post-modal .modal-content {
   background-color: #F8E9E7;
   padding: 30px;
   border-radius: 20px;
-  width: 90%;   
-  box-shadow: 0 8px 12px rgba(34, 57, 42, 0.08);
+  width: 90%;
   font-family: 'Press Start 2P', cursive, sans-serif;
   position: relative;
   animation: fadeIn 0.3s ease-out;
@@ -299,7 +289,6 @@ header button {
   border-radius: 15px;
   padding: 20px;
   margin: 20px 40px;
-  box-shadow: 0 4px 8px rgba(34, 57, 42, 0.08);
   display: flex;
   flex-direction: column;
   gap: 15px;
