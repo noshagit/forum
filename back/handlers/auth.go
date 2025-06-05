@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -148,8 +149,24 @@ func RegisterHandler(router *mux.Router) {
 			return
 		}
 
+		emailRegex := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+		if matched := regexp.MustCompile(emailRegex).MatchString(user.Email); !matched {
+			http.Error(w, "Invalid email format", http.StatusBadRequest)
+			return
+		}
+
 		if user.Password != user.ConfirmPassword {
 			http.Error(w, "Passwords do not match", http.StatusBadRequest)
+			return
+		}
+
+		pass := user.Password
+		if len(pass) < 8 ||
+			!regexp.MustCompile(`[A-Z]`).MatchString(pass) ||
+			!regexp.MustCompile(`[a-z]`).MatchString(pass) ||
+			!regexp.MustCompile(`[0-9]`).MatchString(pass) ||
+			!regexp.MustCompile(`[^a-zA-Z0-9]`).MatchString(pass) {
+			http.Error(w, "Password must be at least 8 characters and include upper, lower, number, and special character", http.StatusBadRequest)
 			return
 		}
 
@@ -163,6 +180,29 @@ func RegisterHandler(router *mux.Router) {
 		}
 		defer db.Close()
 
+		var exists int
+		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE email = ?", user.Email).Scan(&exists)
+		if err != nil {
+			log.Println("Database query error:", err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+		if exists > 0 {
+			http.Error(w, "Email already registered", http.StatusBadRequest)
+			return
+		}
+
+		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE username = ?", user.Pseudo).Scan(&exists)
+		if err != nil {
+			log.Println("Database query error:", err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+		if exists > 0 {
+			http.Error(w, "Username already taken", http.StatusBadRequest)
+			return
+		}
+
 		stmt, err := db.Prepare("INSERT INTO users (username, email, password, profile_picture) VALUES (?, ?, ?, ?)")
 		if err != nil {
 			log.Println("Database preparation error:", err)
@@ -172,7 +212,8 @@ func RegisterHandler(router *mux.Router) {
 		defer stmt.Close()
 
 		defaultProfilePicture := "../pp/default.png"
-		if _, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword, defaultProfilePicture); err != nil {
+		_, err = stmt.Exec(user.Pseudo, user.Email, hashedPassword, defaultProfilePicture)
+		if err != nil {
 			log.Println("Database insertion error:", err)
 			http.Error(w, "Server error", http.StatusInternalServerError)
 			return
@@ -340,6 +381,12 @@ func ProfileHandler(router *mux.Router) {
 			return
 		}
 
+		emailRegex := `^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`
+		if matched := regexp.MustCompile(emailRegex).MatchString(email); !matched {
+			http.Error(w, "Invalid email format", http.StatusBadRequest)
+			return
+		}
+
 		db, err := sql.Open("sqlite3", "../database/bddforum.db")
 		if err != nil {
 			http.Error(w, "Database connection error", http.StatusInternalServerError)
@@ -354,6 +401,28 @@ func ProfileHandler(router *mux.Router) {
 			return
 		}
 
+		var userCount int
+		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE username = ? AND email != ?", username, currentEmail).Scan(&userCount)
+		if err != nil {
+			http.Error(w, "Database query error", http.StatusInternalServerError)
+			return
+		}
+		if userCount > 0 {
+			http.Error(w, "Username already taken", http.StatusBadRequest)
+			return
+		}
+
+		var emailCount int
+		err = db.QueryRow("SELECT COUNT(1) FROM users WHERE email = ? AND email != ?", email, currentEmail).Scan(&emailCount)
+		if err != nil {
+			http.Error(w, "Database query error", http.StatusInternalServerError)
+			return
+		}
+		if emailCount > 0 {
+			http.Error(w, "Email already registered", http.StatusBadRequest)
+			return
+		}
+
 		file, handler, err := r.FormFile("profile_picture")
 		var filename string
 		if err == nil {
@@ -361,9 +430,9 @@ func ProfileHandler(router *mux.Router) {
 
 			ext := filepath.Ext(handler.Filename)
 			filename = fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
-			filepath := "../../front/pp/" + filename
+			fileSavePath := "../../front/pp/" + filename
 
-			dst, err := os.Create(filepath)
+			dst, err := os.Create(fileSavePath)
 			if err != nil {
 				http.Error(w, "Error saving file", http.StatusInternalServerError)
 				return
@@ -375,10 +444,24 @@ func ProfileHandler(router *mux.Router) {
 				return
 			}
 
+			var oldProfilePicture string
+			err = db.QueryRow("SELECT profile_picture FROM users WHERE email = ?", currentEmail).Scan(&oldProfilePicture)
+			if err != nil {
+				http.Error(w, "Error retrieving old profile picture", http.StatusInternalServerError)
+				return
+			}
+
 			_, err = db.Exec("UPDATE users SET profile_picture = ? WHERE email = ?", "/front/pp/"+filename, currentEmail)
 			if err != nil {
 				http.Error(w, "Error updating profile picture", http.StatusInternalServerError)
 				return
+			}
+
+			if oldProfilePicture != "" && oldProfilePicture != "../pp/default.png" && oldProfilePicture != "/front/pp/default.png" {
+				oldPath := "../../front/pp/" + filepath.Base(oldProfilePicture)
+				if _, err := os.Stat(oldPath); err == nil {
+					os.Remove(oldPath)
+				}
 			}
 		}
 
@@ -527,6 +610,16 @@ func ChangePasswordAPIHandler(dbPath string) http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil || req.Password == "" {
 			http.Error(w, `{"error": "Mot de passe invalide"}`, http.StatusBadRequest)
+			return
+		}
+
+		pass := req.Password
+		if len(pass) < 8 ||
+			!regexp.MustCompile(`[A-Z]`).MatchString(pass) ||
+			!regexp.MustCompile(`[a-z]`).MatchString(pass) ||
+			!regexp.MustCompile(`[0-9]`).MatchString(pass) ||
+			!regexp.MustCompile(`[^a-zA-Z0-9]`).MatchString(pass) {
+			http.Error(w, `{"error": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial."}`, http.StatusBadRequest)
 			return
 		}
 
