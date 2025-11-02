@@ -63,10 +63,10 @@ Deux choix s'offrent à vous :
     - Sur votre navigateur, entrez :
       "_http://localhost:8080_"
 
-2.  Accéder au site hébergé sur Azur :
+2.  ~~Accéder au site hébergé sur Azur (Fermé) :~~
 
-    - Sur votre navigateur, entrez :
-      "*http://20.117.108.238:8080*"
+    - ~~Sur votre navigateur, entrez :~~
+      ~~"*http://20.117.108.238:8080*"~~
 ## Membre du projet
 
 Nous faisons partis du groupe 5, dont les membres sont :
